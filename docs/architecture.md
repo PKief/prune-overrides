@@ -207,14 +207,3 @@ Tests use Jest with SWC for fast ESM-compatible execution.
 3. **No .npmrc copying** - Private registries may not work correctly
 4. **No workspace support** - npm workspaces not handled
 5. **Sequential analysis** - Overrides analyzed one at a time (no parallelism)
-
-## Future Improvements
-
-See [GitHub Issues](https://github.com/PKief/prune-overrides/issues) for planned improvements:
-
-- Parallel analysis for faster execution
-- Progress indicator for large projects
-- Timeout handling for npm commands
-- .npmrc support for private registries
-- Nested override support
-- npm workspace support
