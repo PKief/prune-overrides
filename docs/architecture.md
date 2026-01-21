@@ -204,6 +204,6 @@ Tests use Jest with SWC for fast ESM-compatible execution.
 
 1. **npm only** - Does not support yarn or pnpm
 2. **Simple overrides only** - Nested overrides like `{ "foo": { "bar": "1.0.0" } }` are skipped
-3. **No .npmrc copying** - Private registries may not work correctly
-4. **No workspace support** - npm workspaces not handled
-5. **Sequential analysis** - Overrides analyzed one at a time (no parallelism)
+3. **No workspace support** - npm workspaces not handled
+4. **Sequential analysis** - Overrides analyzed one at a time (no parallelism)
+5. **Lockfile version 2+ only** - Older npm lockfiles (v1) not supported
