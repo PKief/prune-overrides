@@ -39,7 +39,7 @@
     "prune",
     "cli"
   ],
-  "author": "",
+  "author": "Philipp Kief",
   "license": "MIT",
   "engines": {
     "node": ">=18.0.0"
