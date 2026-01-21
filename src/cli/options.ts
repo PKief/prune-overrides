@@ -4,8 +4,9 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+// Navigate from dist/src/cli/ to project root
 const packageJson = JSON.parse(
-  readFileSync(join(__dirname, "..", "..", "package.json"), "utf-8")
+  readFileSync(join(__dirname, "..", "..", "..", "package.json"), "utf-8")
 ) as { version: string; description: string };
 
 export interface CliOptions {
