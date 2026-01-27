@@ -16,6 +16,10 @@ class Logger {
     this.silent = options.silent ?? false;
   }
 
+  isSilent(): boolean {
+    return this.silent;
+  }
+
   debug(message: string, ...args: unknown[]): void {
     if (this.verbose && !this.silent) {
       console.log(pc.gray(`[DEBUG] ${message}`), ...args);

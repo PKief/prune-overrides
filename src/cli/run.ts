@@ -6,6 +6,7 @@ import { readPackageJson } from "../fs/readPackageJson.js";
 import { writePackageJson, removeOverride } from "../fs/writePackageJson.js";
 import { npmInstall } from "../npm/install.js";
 import { logger } from "../util/logger.js";
+import { createSpinner } from "../util/spinner.js";
 import { ExitCode } from "../config/constants.js";
 import { PruneOverridesError } from "../util/errors.js";
 
@@ -33,7 +34,7 @@ export async function run(options: CliOptions): Promise<number> {
 
     // Handle fix mode
     if (options.fix && report.redundant > 0) {
-      await applyFixes(options.cwd, report.results);
+      await applyFixes(options.cwd, report.results, options.json);
     }
 
     // Return appropriate exit code
@@ -67,7 +68,8 @@ export async function run(options: CliOptions): Promise<number> {
  */
 async function applyFixes(
   cwd: string,
-  results: { name: string; verdict: "redundant" | "required" }[]
+  results: { name: string; verdict: "redundant" | "required" }[],
+  silent: boolean
 ): Promise<void> {
   const redundantOverrides = results.filter((r) => r.verdict === "redundant");
 
@@ -91,12 +93,14 @@ async function applyFixes(
   await writePackageJson(cwd, packageJson);
 
   // Regenerate lockfile
-  logger.info("Regenerating package-lock.json...");
+  const spinner = createSpinner("Regenerating package-lock.json...", { silent });
+  spinner.start();
   await npmInstall({
     cwd,
     packageLockOnly: true,
     ignoreScripts: true,
   });
+  spinner.success("Lockfile regenerated");
 
   logger.newline();
   logger.success(`Removed ${String(redundantOverrides.length)} redundant override(s)`);
