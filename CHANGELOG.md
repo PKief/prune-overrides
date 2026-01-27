@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.1.3
+
+[compare changes](https://github.com/PKief/prune-overrides/compare/v0.1.2...v0.1.3)
+
+### 🏡 Chore
+
+- Fix release pipeline ([f424e77](https://github.com/PKief/prune-overrides/commit/f424e77))
+
+### ❤️ Contributors
+
+- Philipp Kief ([@PKief](https://github.com/PKief))
+
 ## v0.1.2
 
 [compare changes](https://github.com/PKief/prune-overrides/compare/v0.1.1...v0.1.2)
