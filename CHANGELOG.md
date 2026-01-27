@@ -1,5 +1,34 @@
 # Changelog
 
+## v0.1.2
+
+[compare changes](https://github.com/PKief/prune-overrides/compare/v0.1.1...v0.1.2)
+
+### 🚀 Enhancements
+
+- Add nanospinner for improved CLI feedback and implement spinner utility ([75016ea](https://github.com/PKief/prune-overrides/commit/75016ea))
+
+### 🩹 Fixes
+
+- **deps:** Bump commander from 12.1.0 to 14.0.2 ([#5](https://github.com/PKief/prune-overrides/pull/5))
+
+### 📖 Documentation
+
+- Update AGENTS.md and add patterns.md and recipes.md for improved documentation ([d8b63d9](https://github.com/PKief/prune-overrides/commit/d8b63d9))
+
+### 🏡 Chore
+
+- Update NPM registry authentication command ([524f2b4](https://github.com/PKief/prune-overrides/commit/524f2b4))
+- Add dependabot configuration for npm updates ([fce2180](https://github.com/PKief/prune-overrides/commit/fce2180))
+- **deps-dev:** Bump jest and @types/jest ([#3](https://github.com/PKief/prune-overrides/pull/3))
+- **deps-dev:** Bump prettier from 3.8.0 to 3.8.1 ([#4](https://github.com/PKief/prune-overrides/pull/4))
+- **deps-dev:** Bump lint-staged from 15.5.2 to 16.2.7 ([#7](https://github.com/PKief/prune-overrides/pull/7))
+- **deps-dev:** Bump @types/node from 22.19.7 to 25.0.10 ([#8](https://github.com/PKief/prune-overrides/pull/8))
+
+### ❤️ Contributors
+
+- Philipp Kief ([@PKief](https://github.com/PKief))
+
 ## v0.1.1
 
 ### 🚀 Enhancements
