@@ -2,6 +2,7 @@ import type { AnalysisReport, AnalyzerOptions, OverrideAnalysisResult } from "./
 import { analyzeSingleOverride } from "./analyzeSingle.js";
 import { readPackageJson, getOverrideKeys } from "../fs/readPackageJson.js";
 import { logger } from "../util/logger.js";
+import { createSpinner } from "../util/spinner.js";
 
 /**
  * Analyze all overrides in a project
@@ -53,7 +54,8 @@ export async function analyzeOverrides(options: AnalyzerOptions): Promise<Analys
       continue;
     }
 
-    logger.info(`Analyzing: ${overrideKey}`);
+    const spinner = createSpinner(`Analyzing: ${overrideKey}`, { silent: logger.isSilent() });
+    spinner.start();
 
     const result = await analyzeSingleOverride({
       cwd,
@@ -63,11 +65,7 @@ export async function analyzeOverrides(options: AnalyzerOptions): Promise<Analys
 
     results.push(result);
 
-    if (result.verdict === "redundant") {
-      logger.success(`${overrideKey}: REDUNDANT - ${result.reason}`);
-    } else {
-      logger.info(`  ${overrideKey}: REQUIRED - ${result.reason}`);
-    }
+    spinner.success(`${overrideKey}: ${result.verdict.toUpperCase()} - ${result.reason}`);
   }
 
   const redundantCount = results.filter((r) => r.verdict === "redundant").length;
