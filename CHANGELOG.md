@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.1.7
+
+[compare changes](https://github.com/PKief/prune-overrides/compare/v0.1.6...v0.1.7)
+
+### 🚀 Enhancements
+
+- Update release workflow to amend commits and sync workspace versions ([3ec9f95](https://github.com/PKief/prune-overrides/commit/3ec9f95))
+
+### 🏡 Chore
+
+- Sync workspace versions to 0.1.6 ([253709e](https://github.com/PKief/prune-overrides/commit/253709e))
+
+### ❤️ Contributors
+
+- Philipp Kief ([@PKief](https://github.com/PKief))
+
 ## v0.1.6
 
 [compare changes](https://github.com/PKief/prune-overrides/compare/v0.1.5...v0.1.6)
