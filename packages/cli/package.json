@@ -1,0 +1,29 @@
+{
+  "name": "prune-overrides",
+  "version": "0.1.3",
+  "description": "CLI tool that analyzes npm overrides entries",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "prune-overrides": "./dist/bin/prune-overrides.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@prune-overrides/core": "*",
+    "commander": "^14.0.2",
+    "picocolors": "^1.1.1"
+  }
+}
