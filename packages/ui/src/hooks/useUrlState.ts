@@ -118,9 +118,10 @@ function fromPayloadV2(payload: EncodedPayloadV2): AnalysisReport {
   const ctx = customReasons ?? {};
 
   const fullResults = results.map(([name, overrideValue, verdict, reasonCode, before, after]) => {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     const reason =
-      CODE_TO_REASON[reasonCode] ?? ctx[reasonCode] ?? `Unknown reason (${String(reasonCode)})`;
+      CODE_TO_REASON[reasonCode] ??
+      (ctx[reasonCode] as string | undefined) ??
+      `Unknown reason (${String(reasonCode)})`;
     return {
       name,
       overrideValue,
