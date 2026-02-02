@@ -1,5 +1,30 @@
 # Changelog
 
+## v0.1.4
+
+[compare changes](https://github.com/PKief/prune-overrides/compare/v0.1.3...v0.1.4)
+
+### 🚀 Enhancements
+
+- Add ui to share results ([f133c3b](https://github.com/PKief/prune-overrides/commit/f133c3b))
+
+### 🩹 Fixes
+
+- Refine reason handling in fromPayloadV2 function ([6a0af66](https://github.com/PKief/prune-overrides/commit/6a0af66))
+- Move build step to correct position in workflow ([2eb7e34](https://github.com/PKief/prune-overrides/commit/2eb7e34))
+- Correct indentation in deploy job configuration ([ede4546](https://github.com/PKief/prune-overrides/commit/ede4546))
+- Remove unnecessary environment configuration from deploy job ([11c6d88](https://github.com/PKief/prune-overrides/commit/11c6d88))
+- Update build script to specify workspaces for individual packages ([21c8844](https://github.com/PKief/prune-overrides/commit/21c8844))
+- Remove redundant tsc command from typecheck script ([0754013](https://github.com/PKief/prune-overrides/commit/0754013))
+
+### 📖 Documentation
+
+- Update architecture documentation with package details and shareable results encoding ([502d3a0](https://github.com/PKief/prune-overrides/commit/502d3a0))
+
+### ❤️ Contributors
+
+- Philipp Kief ([@PKief](https://github.com/PKief))
+
 ## v0.1.3
 
 [compare changes](https://github.com/PKief/prune-overrides/compare/v0.1.2...v0.1.3)
