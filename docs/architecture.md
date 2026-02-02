@@ -6,6 +6,42 @@ This document describes the architecture, design decisions, and implementation d
 
 prune-overrides is a CLI tool that analyzes npm `overrides` entries and determines whether they are still required or can be safely removed. It uses a safe, isolated approach to test each override without affecting the user's actual project.
 
+The project is structured as an npm monorepo with three packages:
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              Monorepo                                       │
+│                         packages/                                           │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌─────────────────┐   ┌─────────────────────┐   ┌─────────────────────┐   │
+│  │  @prune-        │   │   prune-overrides   │   │   @prune-           │   │
+│  │  overrides/core │◄──│       (cli)         │   │   overrides/ui      │   │
+│  │                 │   │                     │   │                     │   │
+│  │  Shared types,  │   │  CLI entry point,   │   │  React web app for  │   │
+│  │  utilities,     │   │  analyzer logic,    │   │  viewing shared     │   │
+│  │  URL encoding   │   │  npm wrappers,      │   │  analysis results   │   │
+│  │                 │   │  reporters          │   │                     │   │
+│  └─────────────────┘   └─────────────────────┘   └─────────────────────┘   │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+## Package Architecture
+
+### @prune-overrides/core
+
+Shared, dependency-light package containing:
+
+- **Types** - `OverrideVerdict`, `AnalysisReport`, etc.
+- **Utilities** - Logger, spinner, exec wrapper, semver helpers
+- **URL Encoding** - LZ-string compression for shareable results
+- **Constants** - Exit codes, timeouts
+
+### prune-overrides (CLI)
+
+Main CLI package with the analysis engine:
+
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                         CLI (bin/)                              │
@@ -14,7 +50,7 @@ prune-overrides is a CLI tool that analyzes npm `overrides` entries and determin
                                 │
                                 ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                     Analyzer (src/analyzer/)                    │
+│                     Analyzer (analyzer/)                        │
 │              Orchestrates override analysis                     │
 └─────────────────────────────────────────────────────────────────┘
                                 │
@@ -22,15 +58,24 @@ prune-overrides is a CLI tool that analyzes npm `overrides` entries and determin
                 ▼               ▼               ▼
 ┌───────────────────┐ ┌─────────────────┐ ┌─────────────────┐
 │   FS Utilities    │ │  NPM Wrappers   │ │ Version Compare │
-│   (src/fs/)       │ │  (src/npm/)     │ │ (src/compare/)  │
+│   (fs/)           │ │  (npm/)         │ │ (compare/)      │
 └───────────────────┘ └─────────────────┘ └─────────────────┘
                                 │
                                 ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                    Reporters (src/report/)                      │
+│                    Reporters (report/)                          │
 │               Console and JSON output                           │
 └─────────────────────────────────────────────────────────────────┘
 ```
+
+### @prune-overrides/ui
+
+React-based web application for viewing shared analysis results:
+
+- Decodes URL-compressed analysis data
+- Displays results in a user-friendly format
+- Deployed to GitHub Pages
+- Supports multiple payload versions (v1, v2, v3) for backwards compatibility
 
 ## Core Design Principles
 
@@ -68,40 +113,73 @@ The tool uses minimal production dependencies:
 
 ```
 prune-overrides/
-├── bin/                    # CLI entry point
-│   └── prune-overrides.ts
-├── src/
-│   ├── index.ts            # Public API exports
-│   ├── cli/                # CLI implementation
-│   │   ├── options.ts      # Argument parsing
-│   │   └── run.ts          # Main execution
-│   ├── analyzer/           # Core analysis logic
-│   │   ├── types.ts        # TypeScript interfaces
-│   │   ├── analyzeOverrides.ts    # Orchestrator
-│   │   └── analyzeSingle.ts       # Single override analysis
-│   ├── fs/                 # File system operations
-│   │   ├── readPackageJson.ts
-│   │   ├── writePackageJson.ts
-│   │   ├── readLockfile.ts
-│   │   └── tempWorkspace.ts
-│   ├── npm/                # npm command wrappers
-│   │   ├── install.ts
-│   │   ├── ls.ts
-│   │   └── explain.ts
-│   ├── compare/            # Version comparison
-│   │   ├── compareResolution.ts
-│   │   └── diffTree.ts
-│   ├── report/             # Output formatting
-│   │   ├── consoleReporter.ts
-│   │   └── jsonReporter.ts
-│   ├── util/               # Shared utilities
-│   │   ├── exec.ts         # Child process wrapper
-│   │   ├── logger.ts       # Logging
-│   │   ├── errors.ts       # Custom error classes
-│   │   └── semver.ts       # Version utilities
-│   └── config/
-│       └── constants.ts    # Exit codes, timeouts
-└── tests/                  # Test files mirror src/ structure
+├── packages/
+│   ├── core/                       # @prune-overrides/core
+│   │   ├── package.json
+│   │   └── src/
+│   │       ├── index.ts            # Public API exports
+│   │       ├── analyzer/
+│   │       │   └── types.ts        # TypeScript interfaces
+│   │       ├── share/              # URL encoding for shareable results
+│   │       │   ├── index.ts
+│   │       │   ├── types.ts        # Compact payload types
+│   │       │   └── urlCodec.ts     # LZ-string encode/decode
+│   │       ├── util/               # Shared utilities
+│   │       │   ├── errors.ts       # Custom error classes
+│   │       │   ├── exec.ts         # Child process wrapper
+│   │       │   ├── logger.ts       # Logging
+│   │       │   ├── semver.ts       # Version utilities
+│   │       │   └── spinner.ts      # Terminal spinner
+│   │       └── config/
+│   │           └── constants.ts    # Exit codes, timeouts
+│   │
+│   ├── cli/                        # prune-overrides (main CLI)
+│   │   ├── package.json
+│   │   └── src/
+│   │       ├── index.ts            # Public API exports
+│   │       ├── bin/
+│   │       │   └── prune-overrides.ts  # CLI entry point
+│   │       ├── cli/                # CLI implementation
+│   │       │   ├── options.ts      # Argument parsing
+│   │       │   └── run.ts          # Main execution
+│   │       ├── analyzer/           # Core analysis logic
+│   │       │   ├── analyzeOverrides.ts    # Orchestrator
+│   │       │   └── analyzeSingle.ts       # Single override analysis
+│   │       ├── fs/                 # File system operations
+│   │       │   ├── readPackageJson.ts
+│   │       │   ├── writePackageJson.ts
+│   │       │   ├── readLockfile.ts
+│   │       │   └── tempWorkspace.ts
+│   │       ├── npm/                # npm command wrappers
+│   │       │   ├── install.ts
+│   │       │   ├── ls.ts
+│   │       │   └── explain.ts
+│   │       ├── compare/            # Version comparison
+│   │       │   ├── compareResolution.ts
+│   │       │   └── diffTree.ts
+│   │       └── report/             # Output formatting
+│   │           ├── consoleReporter.ts
+│   │           └── jsonReporter.ts
+│   │
+│   └── ui/                         # @prune-overrides/ui
+│       ├── package.json
+│       └── src/
+│           ├── main.tsx            # React entry point
+│           ├── App.tsx             # Main application
+│           ├── index.css           # Tailwind CSS
+│           ├── components/
+│           │   ├── EmptyState.tsx  # No data view
+│           │   └── ResultsView.tsx # Analysis results display
+│           └── hooks/
+│               └── useUrlState.ts  # URL decoding hook
+│
+├── docs/                           # Documentation
+│   ├── architecture.md
+│   ├── patterns.md
+│   └── recipes.md
+│
+└── tests/                          # Test files (in cli package)
+    └── packages/cli/tests/
 ```
 
 ### File Guidelines
@@ -174,7 +252,7 @@ function wouldIntroduceOlderVersions(before: string[], after: string[]): boolean
 
 ## Error Handling
 
-Custom error classes in `src/util/errors.ts`:
+Custom error classes in `packages/core/src/util/errors.ts`:
 
 | Error Class        | When Used                              |
 | ------------------ | -------------------------------------- |
@@ -192,11 +270,45 @@ Custom error classes in `src/util/errors.ts`:
 | 1    | `REDUNDANT_FOUND` | Redundant overrides found (dry-run)   |
 | 2    | `ERROR`           | An error occurred                     |
 
+## Shareable Results
+
+Analysis results can be encoded into a compact URL for sharing via the web UI.
+
+### Encoding Pipeline
+
+```
+AnalysisReport
+    │
+    ▼ toShareableResult()
+EncodedPayload (compact array format)
+    │
+    ▼ JSON.stringify()
+JSON string
+    │
+    ▼ LZString.compressToEncodedURIComponent()
+URL-safe compressed string
+    │
+    ▼ Append to UI URL
+https://pkief.github.io/prune-overrides/?d=<compressed>
+```
+
+### Payload Format (v3)
+
+```typescript
+type EncodedPayload = [
+  string, // projectName
+  string[], // redundant override names
+  string[], // required override names
+];
+```
+
+The UI supports backwards-compatible decoding of older payload formats (v1, v2).
+
 ## Testing Strategy
 
 - **Unit tests** - Pure functions (semver, comparison)
 - **Integration tests** - File system operations with fixtures
-- **Fixtures** - Sample package.json files in `tests/fixtures/`
+- **Fixtures** - Sample package.json files in `packages/cli/tests/fixtures/`
 
 Tests use Jest with SWC for fast ESM-compatible execution.
 
