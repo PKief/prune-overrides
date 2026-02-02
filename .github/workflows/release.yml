@@ -34,8 +34,7 @@ jobs:
 
       - name: Generate changelog and release notes
         run: |
-          npx changelogen --hideAuthorEmail --release --push
-          npx changelogen github release --token ${{ secrets.GITHUB_TOKEN }}
+          npx changelogen --hideAuthorEmail --release --no-push
 
       - name: Get metadata
         run: |
@@ -50,8 +49,11 @@ jobs:
           VERSION=$(jq -r '.version' package.json)
           npm version $VERSION --workspaces --no-git-tag-version
           git add packages/*/package.json
-          git commit -m "chore: sync workspace versions to $VERSION"
-          git push
+          git commit --amend --no-edit
+          git push --follow-tags
+
+      - name: Create GitHub release
+        run: npx changelogen github release --token ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build
         run: npm run build
