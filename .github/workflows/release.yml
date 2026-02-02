@@ -45,6 +45,14 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "NAME=$NAME" >> $GITHUB_ENV
 
+      - name: Sync version to workspace packages
+        run: |
+          VERSION=$(jq -r '.version' package.json)
+          npm version $VERSION --workspaces --no-git-tag-version
+          git add packages/*/package.json
+          git commit -m "chore: sync workspace versions to $VERSION"
+          git push
+
       - name: Build
         run: npm run build
 
