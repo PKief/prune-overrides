@@ -12,6 +12,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Build
+        run: npm run build --workspaces
+
       - name: Lint
         run: npm run lint
 
@@ -20,6 +23,3 @@ jobs:
 
       - name: Test
         run: npm test
-
-      - name: Build
-        run: npm run build --workspaces
