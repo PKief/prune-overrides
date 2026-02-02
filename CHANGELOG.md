@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.1.6
+
+[compare changes](https://github.com/PKief/prune-overrides/compare/v0.1.5...v0.1.6)
+
+### 🚀 Enhancements
+
+- Add step to sync workspace package versions during release ([1852c83](https://github.com/PKief/prune-overrides/commit/1852c83))
+
+### ❤️ Contributors
+
+- Philipp Kief ([@PKief](https://github.com/PKief))
+
 ## v0.1.5
 
 [compare changes](https://github.com/PKief/prune-overrides/compare/v0.1.4...v0.1.5)
