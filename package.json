@@ -1,6 +1,6 @@
 {
   "name": "prune-overrides",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "private": true,
   "description": "CLI tool that analyzes npm overrides entries and determines whether they are still required or can be safely removed",
   "type": "module",
