@@ -1,24 +1,15 @@
 {
   "name": "prune-overrides",
   "version": "0.1.3",
+  "private": true,
   "description": "CLI tool that analyzes npm overrides entries and determines whether they are still required or can be safely removed",
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "bin": {
-    "prune-overrides": "./dist/bin/prune-overrides.js"
-  },
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    }
-  },
-  "files": [
-    "dist"
+  "workspaces": [
+    "packages/*"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "npm run build --workspaces",
+    "build:ui": "npm run build -w @prune-overrides/ui",
     "dev": "tsc --watch",
     "start": "node dist/bin/prune-overrides.js",
     "lint": "eslint .",
@@ -28,7 +19,7 @@
     "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
     "test:watch": "NODE_OPTIONS='--experimental-vm-modules' jest --watch",
     "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' jest --coverage",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "npm run typecheck --workspaces --if-present && tsc --noEmit",
     "prepublishOnly": "npm run build",
     "prepare": "husky"
   },
@@ -54,10 +45,7 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "commander": "^14.0.2",
-    "nanospinner": "^1.2.2",
-    "picocolors": "^1.1.1",
-    "semver": "^7.7.3"
+    "commander": "^14.0.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
