@@ -58,5 +58,10 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Copy README and LICENSE to CLI package
+        run: |
+          cp README.md packages/cli/
+          cp LICENSE packages/cli/
+
       - name: Publish to NPM Registry
         run: npm publish --provenance --access public -w prune-overrides
