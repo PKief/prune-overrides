@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.1.8
+
+[compare changes](https://github.com/PKief/prune-overrides/compare/v0.1.7...v0.1.8)
+
+### 🚀 Enhancements
+
+- Add README and LICENSE to CLI package and update NPM publish step ([0e0a514](https://github.com/PKief/prune-overrides/commit/0e0a514))
+
+### ❤️ Contributors
+
+- Philipp Kief ([@PKief](https://github.com/PKief))
+
 ## v0.1.7
 
 [compare changes](https://github.com/PKief/prune-overrides/compare/v0.1.6...v0.1.7)
