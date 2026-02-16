@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.1.9
+
+[compare changes](https://github.com/PKief/prune-overrides/compare/v0.1.8...v0.1.9)
+
+### 🚀 Enhancements
+
+- Refactor share module and CLI utilities ([2d235a7](https://github.com/PKief/prune-overrides/commit/2d235a7))
+
+### ❤️ Contributors
+
+- Philipp Kief ([@PKief](https://github.com/PKief))
+
 ## v0.1.8
 
 [compare changes](https://github.com/PKief/prune-overrides/compare/v0.1.7...v0.1.8)
