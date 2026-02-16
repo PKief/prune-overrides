@@ -1,15 +1,11 @@
-import type { OverrideAnalysisResult } from "@prune-overrides/core";
+import type { OverrideAnalysisResult } from "./types.js";
 import { createTempWorkspace } from "../fs/tempWorkspace.js";
 import { readPackageJson } from "../fs/readPackageJson.js";
 import { writePackageJson, removeOverride } from "../fs/writePackageJson.js";
 import { readLockfile, getAllResolvedVersions } from "../fs/readLockfile.js";
 import { npmInstall } from "../npm/install.js";
-import {
-  logger,
-  findMinVersion,
-  wouldIntroduceOlderVersions,
-  getOlderVersions,
-} from "@prune-overrides/core";
+import { logger } from "../util/logger.js";
+import { findMinVersion, wouldIntroduceOlderVersions, getOlderVersions } from "../util/semver.js";
 
 export interface AnalyzeSingleOptions {
   /** Working directory */

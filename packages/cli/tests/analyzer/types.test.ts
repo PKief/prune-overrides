@@ -1,4 +1,4 @@
-import { type OverrideVerdict, type OverrideAnalysisResult } from "@prune-overrides/core";
+import { type OverrideVerdict, type OverrideAnalysisResult } from "../../src/analyzer/types.js";
 
 describe("analyzer types", () => {
   it("should allow valid verdict values", () => {

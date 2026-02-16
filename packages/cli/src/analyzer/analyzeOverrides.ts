@@ -1,11 +1,8 @@
-import type {
-  AnalysisReport,
-  AnalyzerOptions,
-  OverrideAnalysisResult,
-} from "@prune-overrides/core";
+import type { AnalysisReport, AnalyzerOptions, OverrideAnalysisResult } from "./types.js";
 import { analyzeSingleOverride } from "./analyzeSingle.js";
 import { readPackageJson, getOverrideKeys } from "../fs/readPackageJson.js";
-import { logger, createSpinner } from "@prune-overrides/core";
+import { logger } from "../util/logger.js";
+import { createSpinner } from "../util/spinner.js";
 
 /**
  * Analyze all overrides in a project

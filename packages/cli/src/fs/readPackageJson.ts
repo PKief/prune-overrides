@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { PackageJsonError } from "@prune-overrides/core";
+import { PackageJsonError } from "../util/errors.js";
 
 export interface PackageJson {
   name?: string;

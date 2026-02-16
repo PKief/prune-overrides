@@ -1,7 +1,7 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import type { PackageJson } from "./readPackageJson.js";
-import { PackageJsonError } from "@prune-overrides/core";
+import { PackageJsonError } from "../util/errors.js";
 
 /**
  * Write package.json to a directory, preserving formatting if possible

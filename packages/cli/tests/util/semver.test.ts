@@ -5,7 +5,7 @@ import {
   findMaxVersion,
   wouldIntroduceOlderVersions,
   getOlderVersions,
-} from "@prune-overrides/core";
+} from "../../src/util/semver.js";
 
 describe("semver utilities", () => {
   describe("compareVersions", () => {

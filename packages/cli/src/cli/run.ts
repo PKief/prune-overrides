@@ -5,13 +5,11 @@ import { printJsonReport } from "../report/jsonReporter.js";
 import { readPackageJson } from "../fs/readPackageJson.js";
 import { writePackageJson, removeOverride } from "../fs/writePackageJson.js";
 import { npmInstall } from "../npm/install.js";
-import {
-  logger,
-  createSpinner,
-  ExitCode,
-  PruneOverridesError,
-  encodeReport,
-} from "@prune-overrides/core";
+import { logger } from "../util/logger.js";
+import { createSpinner } from "../util/spinner.js";
+import { ExitCode } from "../config/constants.js";
+import { PruneOverridesError } from "../util/errors.js";
+import { encodeReport } from "../share/urlCodec.js";
 
 /**
  * Main CLI execution

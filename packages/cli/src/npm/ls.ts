@@ -1,4 +1,5 @@
-import { execSafe, logger } from "@prune-overrides/core";
+import { execSafe } from "../util/exec.js";
+import { logger } from "../util/logger.js";
 
 export interface NpmLsDependency {
   version?: string;

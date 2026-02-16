@@ -2,7 +2,8 @@ import { mkdir, rm, cp } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { randomUUID } from "node:crypto";
-import { TEMP_DIR_PREFIX, WorkspaceError } from "@prune-overrides/core";
+import { TEMP_DIR_PREFIX } from "../config/constants.js";
+import { WorkspaceError } from "../util/errors.js";
 
 export interface TempWorkspace {
   /** Path to the temporary workspace */
