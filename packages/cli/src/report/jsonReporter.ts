@@ -1,4 +1,4 @@
-import type { AnalysisReport } from "@prune-overrides/core";
+import type { AnalysisReport } from "../analyzer/types.js";
 
 /**
  * JSON output format

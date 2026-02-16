@@ -1,4 +1,7 @@
-import { exec, execSafe, NpmError, DEFAULT_NPM_TIMEOUT, logger } from "@prune-overrides/core";
+import { exec, execSafe } from "../util/exec.js";
+import { NpmError } from "../util/errors.js";
+import { DEFAULT_NPM_TIMEOUT } from "../config/constants.js";
+import { logger } from "../util/logger.js";
 
 export interface InstallOptions {
   /** Working directory */

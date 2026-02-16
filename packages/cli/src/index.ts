@@ -39,10 +39,10 @@ export { reportToConsole } from "./report/consoleReporter.js";
 export { reportToJson, printJsonReport } from "./report/jsonReporter.js";
 export type { JsonReport } from "./report/jsonReporter.js";
 
-// Re-export core types for convenience
+// Types
 export type {
   OverrideVerdict,
   OverrideAnalysisResult,
   AnalysisReport,
   AnalyzerOptions,
-} from "@prune-overrides/core";
+} from "./analyzer/types.js";

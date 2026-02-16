@@ -8,7 +8,7 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build -w @prune-overrides/core && npm run build -w prune-overrides && npm run build -w @prune-overrides/ui",
+    "build": "npm run build -w prune-overrides && npm run build -w @prune-overrides/ui",
     "build:ui": "npm run build -w @prune-overrides/ui",
     "dev": "tsc --watch",
     "start": "node dist/bin/prune-overrides.js",

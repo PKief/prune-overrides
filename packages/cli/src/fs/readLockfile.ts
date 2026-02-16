@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { LockfileError } from "@prune-overrides/core";
+import { LockfileError } from "../util/errors.js";
 
 export interface LockfilePackage {
   version: string;

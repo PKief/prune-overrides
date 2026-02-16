@@ -1,5 +1,5 @@
 import pc from "picocolors";
-import type { AnalysisReport } from "@prune-overrides/core";
+import type { AnalysisReport } from "../analyzer/types.js";
 
 /**
  * Format and print analysis results to console

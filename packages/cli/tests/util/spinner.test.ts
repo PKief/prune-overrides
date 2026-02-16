@@ -1,5 +1,5 @@
 import { jest } from "@jest/globals";
-import { createSpinner, type SpinnerInstance } from "@prune-overrides/core";
+import { createSpinner, type SpinnerInstance } from "../../src/util/spinner.js";
 
 describe("spinner utility", () => {
   describe("createSpinner", () => {
