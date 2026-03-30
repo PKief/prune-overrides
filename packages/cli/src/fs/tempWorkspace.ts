@@ -1,4 +1,4 @@
-import { mkdir, rm, cp } from "node:fs/promises";
+import { mkdir, rm, copyFile, constants } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { randomUUID } from "node:crypto";
@@ -13,7 +13,10 @@ export interface TempWorkspace {
 }
 
 /**
- * Create a temporary workspace for testing override removal
+ * Create a temporary workspace for testing override removal.
+ *
+ * Only copies the lockfile (using COPYFILE_FICLONE for copy-on-write
+ * on APFS/btrfs). The caller is responsible for writing package.json.
  */
 export async function createTempWorkspace(sourceDir: string): Promise<TempWorkspace> {
   const workspacePath = join(tmpdir(), `${TEMP_DIR_PREFIX}${randomUUID()}`);
@@ -21,12 +24,13 @@ export async function createTempWorkspace(sourceDir: string): Promise<TempWorksp
   try {
     await mkdir(workspacePath, { recursive: true });
 
-    // Copy package.json
-    await cp(join(sourceDir, "package.json"), join(workspacePath, "package.json"));
-
-    // Copy package-lock.json if it exists
+    // Copy package-lock.json using copy-on-write when supported
     try {
-      await cp(join(sourceDir, "package-lock.json"), join(workspacePath, "package-lock.json"));
+      await copyFile(
+        join(sourceDir, "package-lock.json"),
+        join(workspacePath, "package-lock.json"),
+        constants.COPYFILE_FICLONE
+      );
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
         throw error;

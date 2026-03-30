@@ -1,8 +1,9 @@
 import type { OverrideAnalysisResult } from "./types.js";
 import { createTempWorkspace } from "../fs/tempWorkspace.js";
-import { readPackageJson } from "../fs/readPackageJson.js";
+import type { PackageJson } from "../fs/readPackageJson.js";
 import { writePackageJson, removeOverride } from "../fs/writePackageJson.js";
 import { readLockfile, getAllResolvedVersions } from "../fs/readLockfile.js";
+import type { Lockfile } from "../fs/readLockfile.js";
 import { npmInstall } from "../npm/install.js";
 import { logger } from "../util/logger.js";
 import { findMinVersion, wouldIntroduceOlderVersions, getOlderVersions } from "../util/semver.js";
@@ -16,6 +17,10 @@ export interface AnalyzeSingleOptions {
   overrideValue: string;
   /** Parent path for nested overrides */
   overridePath?: string[];
+  /** Pre-loaded baseline lockfile */
+  baselineLockfile: Lockfile;
+  /** Pre-loaded package.json */
+  packageJson: PackageJson;
 }
 
 /**
@@ -30,22 +35,21 @@ export async function analyzeSingleOverride(
     `Analyzing override: ${overridePath ? [...overridePath, overrideKey].join(" > ") : overrideKey} -> ${overrideValue}`
   );
 
-  // Get ALL versions of this package in the current tree (with override)
-  const baselineLockfile = await readLockfile(cwd);
-  const beforeVersions = getAllResolvedVersions(baselineLockfile, overrideKey);
+  // Extract versions from the pre-loaded baseline lockfile
+  const beforeVersions = getAllResolvedVersions(options.baselineLockfile, overrideKey);
   const beforeMinVersion = findMinVersion(beforeVersions);
 
   logger.debug(
     `Current versions of ${overrideKey}: ${beforeVersions.length > 0 ? beforeVersions.join(", ") : "none"}`
   );
 
-  // Create temp workspace
+  // Remove the override from the pre-loaded package.json
+  const modifiedPackageJson = removeOverride(options.packageJson, overrideKey, overridePath);
+
+  // Create temp workspace and write the modified package.json
   const workspace = await createTempWorkspace(cwd);
 
   try {
-    // Read and modify package.json in workspace
-    const packageJson = await readPackageJson(workspace.path);
-    const modifiedPackageJson = removeOverride(packageJson, overrideKey, overridePath);
     await writePackageJson(workspace.path, modifiedPackageJson);
 
     // Run npm install to regenerate lockfile
