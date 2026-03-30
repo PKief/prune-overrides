@@ -3,6 +3,7 @@ import { getOverrideDisplayName } from "./types.js";
 import { analyzeSingleOverride } from "./analyzeSingle.js";
 import { readPackageJson, getOverrideKeys } from "../fs/readPackageJson.js";
 import type { OverrideValue } from "../fs/readPackageJson.js";
+import { readLockfile } from "../fs/readLockfile.js";
 import { logger } from "../util/logger.js";
 import { createSpinner } from "../util/spinner.js";
 import { processInPool } from "../util/processInPool.js";
@@ -85,6 +86,9 @@ export async function analyzeOverrides(options: AnalyzerOptions): Promise<Analys
   );
   logger.newline();
 
+  // Read lockfile once — shared across all parallel workers
+  const baselineLockfile = await readLockfile(cwd);
+
   // Analyze overrides concurrently
   let completed = 0;
   const spinner = createSpinner(`Analyzing overrides (0/${String(leaves.length)})`, {
@@ -98,6 +102,8 @@ export async function analyzeOverrides(options: AnalyzerOptions): Promise<Analys
       overrideKey: leaf.key,
       overrideValue: leaf.value,
       overridePath: leaf.path.length > 0 ? leaf.path : undefined,
+      baselineLockfile,
+      packageJson,
     });
 
     completed++;
