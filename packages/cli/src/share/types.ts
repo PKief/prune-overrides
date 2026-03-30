@@ -4,6 +4,7 @@
  */
 
 import type { OverrideAnalysisResult, AnalysisReport } from "../analyzer/types.js";
+import { getOverrideDisplayName } from "../analyzer/types.js";
 
 /**
  * Ultra-compact payload format (v3)
@@ -41,10 +42,11 @@ export function toShareableResult(report: ShareableReport): EncodedPayload {
   const required: string[] = [];
 
   for (const result of report.results) {
+    const displayName = getOverrideDisplayName(result);
     if (result.verdict === "redundant") {
-      redundant.push(result.name);
+      redundant.push(displayName);
     } else {
-      required.push(result.name);
+      required.push(displayName);
     }
   }
 

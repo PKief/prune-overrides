@@ -1,5 +1,7 @@
 import type { CliOptions } from "./options.js";
 import { analyzeOverrides } from "../analyzer/analyzeOverrides.js";
+import type { OverrideAnalysisResult } from "../analyzer/types.js";
+import { getOverrideDisplayName } from "../analyzer/types.js";
 import { reportToConsole } from "../report/consoleReporter.js";
 import { printJsonReport } from "../report/jsonReporter.js";
 import { readPackageJson } from "../fs/readPackageJson.js";
@@ -24,6 +26,7 @@ export async function run(options: CliOptions): Promise<number> {
       include: options.include.length > 0 ? options.include : undefined,
       exclude: options.exclude.length > 0 ? options.exclude : undefined,
       verbose: options.verbose,
+      concurrency: options.concurrency,
     });
 
     // Output results
@@ -81,7 +84,7 @@ export async function run(options: CliOptions): Promise<number> {
  */
 async function applyFixes(
   cwd: string,
-  results: { name: string; verdict: "redundant" | "required" }[],
+  results: OverrideAnalysisResult[],
   silent: boolean
 ): Promise<void> {
   const redundantOverrides = results.filter((r) => r.verdict === "redundant");
@@ -96,10 +99,10 @@ async function applyFixes(
   // Read current package.json
   let packageJson = await readPackageJson(cwd);
 
-  // Remove each redundant override
+  // Remove each redundant override (supports nested paths)
   for (const override of redundantOverrides) {
-    packageJson = removeOverride(packageJson, override.name);
-    logger.success(`Removed override: ${override.name}`);
+    packageJson = removeOverride(packageJson, override.name, override.overridePath);
+    logger.success(`Removed override: ${getOverrideDisplayName(override)}`);
   }
 
   // Write updated package.json

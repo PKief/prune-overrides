@@ -1,5 +1,6 @@
 import pc from "picocolors";
 import type { AnalysisReport } from "../analyzer/types.js";
+import { getOverrideDisplayName } from "../analyzer/types.js";
 
 /**
  * Format and print analysis results to console
@@ -20,7 +21,7 @@ export function reportToConsole(report: AnalysisReport): void {
 
     for (const result of report.results) {
       if (result.verdict === "redundant") {
-        console.log(`  ${pc.yellow("•")} ${pc.bold(result.name)}`);
+        console.log(`  ${pc.yellow("•")} ${pc.bold(getOverrideDisplayName(result))}`);
         console.log(`    Override: ${pc.dim(result.overrideValue)}`);
         console.log(`    Reason:   ${pc.dim(result.reason)}`);
         console.log();
@@ -34,7 +35,7 @@ export function reportToConsole(report: AnalysisReport): void {
 
     for (const result of report.results) {
       if (result.verdict === "required") {
-        console.log(`  ${pc.blue("•")} ${pc.bold(result.name)}`);
+        console.log(`  ${pc.blue("•")} ${pc.bold(getOverrideDisplayName(result))}`);
         console.log(`    Reason: ${pc.dim(result.reason)}`);
         console.log();
       }

@@ -2,6 +2,8 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { PackageJsonError } from "../util/errors.js";
 
+export type OverrideValue = string | { [key: string]: OverrideValue };
+
 export interface PackageJson {
   name?: string;
   version?: string;
@@ -9,7 +11,7 @@ export interface PackageJson {
   devDependencies?: Record<string, string>;
   peerDependencies?: Record<string, string>;
   optionalDependencies?: Record<string, string>;
-  overrides?: Record<string, string | Record<string, string>>;
+  overrides?: Record<string, OverrideValue>;
   [key: string]: unknown;
 }
 

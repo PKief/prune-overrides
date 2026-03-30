@@ -9,6 +9,8 @@ export type OverrideVerdict = "redundant" | "required";
 export interface OverrideAnalysisResult {
   /** The override key (package name) */
   name: string;
+  /** Parent chain for nested overrides (e.g., ["@sap/eslint-plugin-cds"] for a sub-entry) */
+  overridePath?: string[];
   /** The override value (version constraint) */
   overrideValue: string;
   /** Minimum resolved version with the override (across entire tree) */
@@ -19,6 +21,16 @@ export interface OverrideAnalysisResult {
   verdict: OverrideVerdict;
   /** Reason for the verdict */
   reason: string;
+}
+
+/**
+ * Get display name for an override result, including parent path for nested overrides
+ */
+export function getOverrideDisplayName(result: OverrideAnalysisResult): string {
+  if (result.overridePath && result.overridePath.length > 0) {
+    return [...result.overridePath, result.name].join(" > ");
+  }
+  return result.name;
 }
 
 /**
@@ -49,4 +61,6 @@ export interface AnalyzerOptions {
   exclude?: string[];
   /** Enable verbose logging */
   verbose?: boolean;
+  /** Number of overrides to analyze concurrently */
+  concurrency?: number;
 }

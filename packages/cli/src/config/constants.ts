@@ -18,6 +18,11 @@ export type ExitCode = (typeof ExitCode)[keyof typeof ExitCode];
 export const DEFAULT_NPM_TIMEOUT = 120000;
 
 /**
+ * Default concurrency for parallel override analysis
+ */
+export const DEFAULT_CONCURRENCY = 5;
+
+/**
  * Temp directory prefix for workspaces
  */
 export const TEMP_DIR_PREFIX = "prune-overrides-";

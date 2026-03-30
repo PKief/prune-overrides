@@ -34,23 +34,91 @@ export async function writePackageJson(dir: string, packageJson: PackageJson): P
 }
 
 /**
- * Remove a specific override from package.json
+ * Remove a specific override from package.json.
+ * Supports nested paths: removeOverride(pkg, "child", ["parent"]) removes
+ * the "child" entry from inside the "parent" nested override object.
  */
-export function removeOverride(packageJson: PackageJson, overrideKey: string): PackageJson {
+export function removeOverride(
+  packageJson: PackageJson,
+  overrideKey: string,
+  overridePath?: string[]
+): PackageJson {
   if (!packageJson.overrides) {
     return packageJson;
   }
 
-  const { [overrideKey]: _, ...remainingOverrides } = packageJson.overrides;
+  // Simple (top-level) override removal
+  if (!overridePath || overridePath.length === 0) {
+    const { [overrideKey]: _, ...remainingOverrides } = packageJson.overrides;
 
-  // If no overrides left, remove the overrides key entirely
-  if (Object.keys(remainingOverrides).length === 0) {
+    if (Object.keys(remainingOverrides).length === 0) {
+      const { overrides: __, ...rest } = packageJson;
+      return rest;
+    }
+
+    return {
+      ...packageJson,
+      overrides: remainingOverrides,
+    };
+  }
+
+  // Nested override removal — walk the path and remove the leaf
+  const newOverrides = removeNestedKey(
+    packageJson.overrides as Record<string, unknown>,
+    overridePath,
+    overrideKey
+  );
+
+  if (Object.keys(newOverrides).length === 0) {
     const { overrides: __, ...rest } = packageJson;
     return rest;
   }
 
   return {
     ...packageJson,
-    overrides: remainingOverrides,
+    overrides: newOverrides as PackageJson["overrides"],
+  };
+}
+
+/**
+ * Recursively remove a key from a nested object, cleaning up empty parents.
+ */
+function removeNestedKey(
+  obj: Record<string, unknown>,
+  path: string[],
+  leafKey: string
+): Record<string, unknown> {
+  if (path.length === 0) {
+    return obj;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const head = path[0]!;
+  const tail = path.slice(1);
+  const current = obj[head];
+
+  if (current === undefined || typeof current !== "object" || current === null) {
+    return obj;
+  }
+
+  let updated: Record<string, unknown>;
+  if (tail.length > 0) {
+    // More path segments to traverse
+    updated = removeNestedKey(current as Record<string, unknown>, tail, leafKey);
+  } else {
+    // We're at the parent of the leaf — remove the leaf key
+    const { [leafKey]: _, ...rest } = current as Record<string, unknown>;
+    updated = rest;
+  }
+
+  // If the nested object is now empty, remove the parent key too
+  if (Object.keys(updated).length === 0) {
+    const { [head]: _, ...rest } = obj;
+    return rest;
+  }
+
+  return {
+    ...obj,
+    [head]: updated,
   };
 }
