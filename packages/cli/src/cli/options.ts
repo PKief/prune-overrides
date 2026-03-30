@@ -2,6 +2,7 @@ import { Command } from "commander";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import { DEFAULT_CONCURRENCY } from "../config/constants.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 // Navigate from dist/cli/ to package root
@@ -26,6 +27,8 @@ export interface CliOptions {
   verbose: boolean;
   /** Generate shareable URL */
   share: boolean;
+  /** Number of overrides to analyze concurrently */
+  concurrency: number;
 }
 
 /**
@@ -45,7 +48,12 @@ export function createProgram(): Command {
     .option("--exclude <packages...>", "Exclude specific packages from analysis")
     .option("--cwd <path>", "Working directory", process.cwd())
     .option("-v, --verbose", "Enable verbose output")
-    .option("-s, --share", "Generate shareable URL for results");
+    .option("-s, --share", "Generate shareable URL for results")
+    .option(
+      "-c, --concurrency <number>",
+      "Number of overrides to analyze in parallel",
+      String(DEFAULT_CONCURRENCY)
+    );
 
   return program;
 }
@@ -63,6 +71,7 @@ export function parseOptions(program: Command): CliOptions {
     cwd?: string;
     verbose?: boolean;
     share?: boolean;
+    concurrency?: string;
   }>();
 
   return {
@@ -74,5 +83,9 @@ export function parseOptions(program: Command): CliOptions {
     cwd: opts.cwd ?? process.cwd(),
     verbose: opts.verbose ?? false,
     share: opts.share ?? false,
+    concurrency: Math.max(
+      1,
+      parseInt(opts.concurrency ?? String(DEFAULT_CONCURRENCY), 10) || DEFAULT_CONCURRENCY
+    ),
   };
 }

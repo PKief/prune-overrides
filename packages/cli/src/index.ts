@@ -25,6 +25,9 @@ export type { NpmExplainNode, NpmExplainDependent, ExplainOptions } from "./npm/
 export { npmLs, extractVersionsFromLs } from "./npm/ls.js";
 export type { NpmLsDependency, NpmLsResult, LsOptions } from "./npm/ls.js";
 
+// Concurrency utilities
+export { processInPool } from "./util/processInPool.js";
+
 // Compare utilities
 export {
   versionsMatch,

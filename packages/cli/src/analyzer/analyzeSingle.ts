@@ -14,6 +14,8 @@ export interface AnalyzeSingleOptions {
   overrideKey: string;
   /** Override value */
   overrideValue: string;
+  /** Parent path for nested overrides */
+  overridePath?: string[];
 }
 
 /**
@@ -22,9 +24,11 @@ export interface AnalyzeSingleOptions {
 export async function analyzeSingleOverride(
   options: AnalyzeSingleOptions
 ): Promise<OverrideAnalysisResult> {
-  const { cwd, overrideKey, overrideValue } = options;
+  const { cwd, overrideKey, overrideValue, overridePath } = options;
 
-  logger.debug(`Analyzing override: ${overrideKey} -> ${overrideValue}`);
+  logger.debug(
+    `Analyzing override: ${overridePath ? [...overridePath, overrideKey].join(" > ") : overrideKey} -> ${overrideValue}`
+  );
 
   // Get ALL versions of this package in the current tree (with override)
   const baselineLockfile = await readLockfile(cwd);
@@ -41,7 +45,7 @@ export async function analyzeSingleOverride(
   try {
     // Read and modify package.json in workspace
     const packageJson = await readPackageJson(workspace.path);
-    const modifiedPackageJson = removeOverride(packageJson, overrideKey);
+    const modifiedPackageJson = removeOverride(packageJson, overrideKey, overridePath);
     await writePackageJson(workspace.path, modifiedPackageJson);
 
     // Run npm install to regenerate lockfile
@@ -56,6 +60,7 @@ export async function analyzeSingleOverride(
       logger.debug(`npm install failed without override: ${String(error)}`);
       return {
         name: overrideKey,
+        ...(overridePath ? { overridePath } : {}),
         overrideValue,
         before: beforeMinVersion,
         after: null,
@@ -77,6 +82,7 @@ export async function analyzeSingleOverride(
     if (beforeVersions.length === 0 && afterVersions.length === 0) {
       return {
         name: overrideKey,
+        ...(overridePath ? { overridePath } : {}),
         overrideValue,
         before: null,
         after: null,
@@ -90,6 +96,7 @@ export async function analyzeSingleOverride(
       const olderVersions = getOlderVersions(afterVersions, beforeMinVersion ?? "0.0.0");
       return {
         name: overrideKey,
+        ...(overridePath ? { overridePath } : {}),
         overrideValue,
         before: beforeMinVersion,
         after: afterMinVersion,
@@ -107,6 +114,7 @@ export async function analyzeSingleOverride(
     if (setsEqual) {
       return {
         name: overrideKey,
+        ...(overridePath ? { overridePath } : {}),
         overrideValue,
         before: beforeMinVersion,
         after: afterMinVersion,
@@ -123,6 +131,7 @@ export async function analyzeSingleOverride(
       // This means the override isn't preventing downgrades
       return {
         name: overrideKey,
+        ...(overridePath ? { overridePath } : {}),
         overrideValue,
         before: beforeMinVersion,
         after: afterMinVersion,
@@ -133,6 +142,7 @@ export async function analyzeSingleOverride(
 
     return {
       name: overrideKey,
+      ...(overridePath ? { overridePath } : {}),
       overrideValue,
       before: beforeMinVersion,
       after: afterMinVersion,

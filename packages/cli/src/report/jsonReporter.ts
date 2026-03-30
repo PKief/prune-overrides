@@ -12,6 +12,7 @@ export interface JsonReport {
   };
   overrides: {
     name: string;
+    path?: string[];
     value: string;
     verdict: "redundant" | "required";
     before: string | null;
@@ -33,6 +34,7 @@ export function reportToJson(report: AnalysisReport): JsonReport {
     },
     overrides: report.results.map((result) => ({
       name: result.name,
+      ...(result.overridePath ? { path: result.overridePath } : {}),
       value: result.overrideValue,
       verdict: result.verdict,
       before: result.before,
