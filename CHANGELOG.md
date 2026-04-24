@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.2.1
+
+[compare changes](https://github.com/PKief/prune-overrides/compare/v0.1.9...v0.2.1)
+
+### 🚀 Enhancements
+
+- Support nested overrides and concurrent analysis ([5bf3de1](https://github.com/PKief/prune-overrides/commit/5bf3de1))
+
+### 🔥 Performance
+
+- Eliminate redundant I/O in parallel override analysis ([404edd5](https://github.com/PKief/prune-overrides/commit/404edd5))
+
+### ❤️ Contributors
+
+- Philipp Kief ([@PKief](https://github.com/PKief))
+
 ## v0.1.9
 
 [compare changes](https://github.com/PKief/prune-overrides/compare/v0.1.8...v0.1.9)
