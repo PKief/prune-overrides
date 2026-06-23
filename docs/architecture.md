@@ -45,7 +45,7 @@ Main CLI package with the analysis engine:
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                         CLI (bin/)                              │
-│                    commander.js parsing                         │
+│                  node:util parseArgs parsing                    │
 └─────────────────────────────────────────────────────────────────┘
                                 │
                                 ▼
@@ -105,7 +105,6 @@ An override is marked as **required** if:
 
 The tool uses minimal production dependencies:
 
-- `commander` - CLI argument parsing
 - `picocolors` - Terminal colors
 - `semver` - Version comparison (official npm package)
 

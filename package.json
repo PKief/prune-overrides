@@ -1,15 +1,26 @@
 {
   "name": "prune-overrides",
   "version": "0.2.1",
-  "private": true,
   "description": "CLI tool that analyzes npm overrides entries and determines whether they are still required or can be safely removed",
   "type": "module",
-  "workspaces": [
-    "packages/*"
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "prune-overrides": "./dist/bin/prune-overrides.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
-    "build": "npm run build -w prune-overrides && npm run build -w @prune-overrides/ui",
-    "build:ui": "npm run build -w @prune-overrides/ui",
+    "build": "tsc",
     "dev": "tsc --watch",
     "start": "node dist/bin/prune-overrides.js",
     "lint": "eslint .",
@@ -19,7 +30,7 @@
     "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
     "test:watch": "NODE_OPTIONS='--experimental-vm-modules' jest --watch",
     "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' jest --coverage",
-    "typecheck": "npm run typecheck --workspaces --if-present",
+    "typecheck": "tsc --noEmit",
     "prepublishOnly": "npm run build",
     "prepare": "husky"
   },
@@ -42,25 +53,25 @@
   },
   "homepage": "https://github.com/PKief/prune-overrides#readme",
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.0.0"
   },
   "dependencies": {
-    "commander": "^14.0.2"
+    "semver": "^7.8.5"
   },
   "devDependencies": {
-    "@eslint/js": "^9.17.0",
-    "@swc/core": "^1.9.3",
-    "@swc/jest": "^0.2.37",
+    "@eslint/js": "^10.0.1",
+    "@swc/core": "^1.15.43",
+    "@swc/jest": "^0.2.39",
     "@types/jest": "^30.0.0",
-    "@types/node": "^25.0.10",
+    "@types/node": "^26.0.0",
     "@types/semver": "^7.7.1",
-    "eslint": "^9.17.0",
-    "eslint-config-prettier": "^9.1.0",
+    "eslint": "^10.5.0",
+    "eslint-config-prettier": "^10.1.8",
     "husky": "^9.1.7",
-    "jest": "^30.2.0",
-    "lint-staged": "^16.2.7",
-    "prettier": "^3.8.1",
-    "typescript": "^5.7.2",
-    "typescript-eslint": "^8.18.2"
+    "jest": "^30.4.2",
+    "lint-staged": "^17.0.8",
+    "prettier": "^3.8.4",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.62.0"
   }
 }
