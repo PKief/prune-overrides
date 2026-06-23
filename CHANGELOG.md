@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.2.2
+
+[compare changes](https://github.com/PKief/prune-overrides/compare/v0.2.1...v0.2.2)
+
+### 🚀 Enhancements
+
+- Remove unused web ui ([5ad1373](https://github.com/PKief/prune-overrides/commit/5ad1373))
+
+### ❤️ Contributors
+
+- Philipp Kief ([@PKief](https://github.com/PKief))
+
 ## v0.2.1
 
 [compare changes](https://github.com/PKief/prune-overrides/compare/v0.1.9...v0.2.1)
