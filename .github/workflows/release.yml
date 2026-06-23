@@ -44,13 +44,8 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "NAME=$NAME" >> $GITHUB_ENV
 
-      - name: Sync version to workspace packages
-        run: |
-          VERSION=$(jq -r '.version' package.json)
-          npm version $VERSION --workspaces --no-git-tag-version
-          git add packages/*/package.json
-          git commit --amend --no-edit
-          git push --follow-tags
+      - name: Push release commit and tag
+        run: git push --follow-tags
 
       - name: Create GitHub release
         run: npx changelogen github release --token ${{ secrets.GITHUB_TOKEN }}
@@ -58,10 +53,5 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Copy README and LICENSE to CLI package
-        run: |
-          cp README.md packages/cli/
-          cp LICENSE packages/cli/
-
       - name: Publish to NPM Registry
-        run: npm publish --provenance --access public -w prune-overrides
+        run: npm publish --provenance --access public

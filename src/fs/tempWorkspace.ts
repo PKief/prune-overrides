@@ -1,0 +1,58 @@
+import { mkdir, rm, copyFile, constants } from "node:fs/promises";
+import { join } from "node:path";
+import { tmpdir } from "node:os";
+import { randomUUID } from "node:crypto";
+import { TEMP_DIR_PREFIX } from "../config/constants.js";
+import { WorkspaceError } from "../util/errors.js";
+
+export interface TempWorkspace {
+  path: string;
+  cleanup: () => Promise<void>;
+}
+
+/**
+ * Only copies the lockfile (using COPYFILE_FICLONE for copy-on-write
+ * on APFS/btrfs). The caller is responsible for writing package.json.
+ */
+export async function createTempWorkspace(sourceDir: string): Promise<TempWorkspace> {
+  const workspacePath = join(tmpdir(), `${TEMP_DIR_PREFIX}${randomUUID()}`);
+
+  try {
+    await mkdir(workspacePath, { recursive: true });
+
+    // Copy package-lock.json using copy-on-write when supported
+    try {
+      await copyFile(
+        join(sourceDir, "package-lock.json"),
+        join(workspacePath, "package-lock.json"),
+        constants.COPYFILE_FICLONE
+      );
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
+        throw error;
+      }
+      // It's OK if lockfile doesn't exist
+    }
+
+    return {
+      path: workspacePath,
+      cleanup: async () => {
+        await cleanupWorkspace(workspacePath);
+      },
+    };
+  } catch (error) {
+    // Clean up on error
+    await cleanupWorkspace(workspacePath);
+    throw new WorkspaceError(
+      `Failed to create temp workspace: ${error instanceof Error ? error.message : String(error)}`
+    );
+  }
+}
+
+async function cleanupWorkspace(workspacePath: string): Promise<void> {
+  try {
+    await rm(workspacePath, { recursive: true, force: true });
+  } catch {
+    // Best effort cleanup, don't throw
+  }
+}
