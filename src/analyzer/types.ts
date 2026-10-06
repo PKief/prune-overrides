@@ -1,5 +1,4 @@
 import type { SafetyPolicy } from "../compare/resolutions.js";
-import type { ResolverName } from "../resolver/types.js";
 
 export type OverrideVerdict = "redundant" | "required" | "unknown";
 
@@ -31,8 +30,6 @@ export interface AnalysisReport {
   unknown: number;
   results: OverrideAnalysisResult[];
   duration: number;
-  /** @deprecated Use resolverVersion. */
-  npmVersion?: string;
   resolver?: string;
   resolverVersion?: string;
   platform: string;
@@ -46,7 +43,7 @@ export interface AnalyzerOptions {
   concurrency?: number;
   policy?: SafetyPolicy;
   cache?: boolean;
-  resolver?: ResolverName;
+  signal?: AbortSignal;
 }
 
 export type { SafetyPolicy };

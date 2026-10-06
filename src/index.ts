@@ -42,18 +42,6 @@ export {
   indexResolutions,
 } from "./compare/resolutions.js";
 export type { Resolution, SafetyResult, SafetyPolicy } from "./compare/resolutions.js";
-export { compareGraphs, graphVersions } from "./compare/graphs.js";
-export { createResolver } from "./resolver/index.js";
-export type {
-  DependencyResolver,
-  ResolverName,
-  ResolvedGraph,
-  ResolvedNode,
-  ResolvedEdge,
-  ResolutionOutcome,
-  ResolverDiagnostic,
-} from "./resolver/types.js";
-
 export { reportToConsole } from "./report/consoleReporter.js";
 
 export type {

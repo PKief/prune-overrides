@@ -9,6 +9,7 @@ import { npmInstall } from "../npm/install.js";
 import { logger } from "../util/logger.js";
 import { findMinVersion } from "../util/semver.js";
 import { compareLockfiles } from "../compare/resolutions.js";
+import { classifyNpmFailure } from "./npmFailure.js";
 
 export interface AnalyzeSingleOptions {
   cwd: string;
@@ -19,6 +20,7 @@ export interface AnalyzeSingleOptions {
   baselineLockfile: Lockfile;
   packageJson: PackageJson;
   policy?: SafetyPolicy;
+  signal?: AbortSignal;
 }
 
 export async function analyzeSingleOverride(
@@ -47,14 +49,15 @@ export async function analyzeSingleOverride(
       removeOverride(options.packageJson, rule.key, rule.path)
     );
     try {
-      await npmInstall({ cwd: workspace.path });
+      await npmInstall({ cwd: workspace.path, signal: options.signal });
     } catch (error) {
       logger.debug(`npm install failed without override: ${String(error)}`);
+      const failure = classifyNpmFailure(error);
       return {
         ...base,
         after: null,
-        verdict: "unknown",
-        reason: "Could not resolve without override; npm install failed",
+        verdict: failure.kind === "conflict" ? "required" : "unknown",
+        reason: failure.reason,
       };
     }
 
@@ -74,7 +77,7 @@ export async function analyzeSingleOverride(
       options.baselineLockfile,
       candidate,
       rule.packageName,
-      options.policy ?? "exact"
+      options.policy ?? "no-downgrade"
     );
     return {
       ...base,

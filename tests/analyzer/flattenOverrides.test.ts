@@ -1,6 +1,9 @@
-import { flattenOverrides } from "../../src/analyzer/analyzeOverrides.js";
+import { flattenOverrideRules } from "../../src/analyzer/overrideRule.js";
 
-describe("flattenOverrides", () => {
+const flattenOverrides = (overrides: Parameters<typeof flattenOverrideRules>[0]) =>
+  flattenOverrideRules(overrides).map(({ key, value, path }) => ({ key, value, path }));
+
+describe("flattenOverrideRules", () => {
   it("should flatten simple string overrides", () => {
     const overrides = {
       lodash: "4.17.21",

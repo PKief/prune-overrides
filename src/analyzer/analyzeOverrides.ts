@@ -15,20 +15,6 @@ import { createSpinner } from "../util/spinner.js";
 import { processInPool } from "../util/processInPool.js";
 import { DEFAULT_CONCURRENCY } from "../config/constants.js";
 import { getNpmVersion } from "../npm/install.js";
-import { createResolver } from "../resolver/index.js";
-import { analyzeWithResolver } from "./analyzeWithResolver.js";
-
-/** @deprecated Use flattenOverrideRules; retained for API compatibility. */
-export function flattenOverrides(
-  overrides: NonNullable<PackageJson["overrides"]>,
-  parentPath: string[] = []
-): { key: string; value: string; path: string[] }[] {
-  return flattenOverrideRules(overrides, parentPath).map(({ key, value, path }) => ({
-    key,
-    value,
-    path,
-  }));
-}
 
 function hasRelativeDependency(packageJson: PackageJson): boolean {
   const groups = [
@@ -56,7 +42,7 @@ function unknownResult(rule: OverrideRule, reason: string): OverrideAnalysisResu
 
 export async function analyzeOverrides(options: AnalyzerOptions): Promise<AnalysisReport> {
   const startTime = Date.now();
-  const policy = options.policy ?? "exact";
+  const policy = options.policy ?? "no-downgrade";
   logger.configure({ verbose: options.verbose });
   logger.info("Analyzing npm overrides...");
   logger.newline();
@@ -86,29 +72,12 @@ export async function analyzeOverrides(options: AnalyzerOptions): Promise<Analys
       platform,
     };
 
-  const resolverName = options.resolver ?? "arborist";
   const concurrency = Math.max(
     1,
     Math.min(options.concurrency ?? DEFAULT_CONCURRENCY, availableParallelism(), rules.length)
   );
 
-  if (resolverName === "arborist") {
-    const resolver = await createResolver(resolverName);
-    logger.info(
-      `Found ${String(rules.length)} override(s) to analyze (resolver: ${resolver.name}, policy: ${policy}, concurrency: ${String(concurrency)})`
-    );
-    const results = await analyzeWithResolver(
-      resolver,
-      options.cwd,
-      packageJson,
-      rules,
-      policy,
-      concurrency
-    );
-    return report(results, startTime, platform, resolver.version, resolver.name);
-  }
-
-  const baselineLockfile = await readLockfile(options.cwd);
+  const checkedInLockfile = await readLockfile(options.cwd);
   let npmVersion: string | undefined;
   try {
     npmVersion = await getNpmVersion();
@@ -126,8 +95,13 @@ export async function analyzeOverrides(options: AnalyzerOptions): Promise<Analys
     return report(results, startTime, platform, npmVersion);
   }
 
-  const baselineValidation = await validateBaseline(options.cwd, packageJson, baselineLockfile);
-  if (!baselineValidation.valid) {
+  const baselineValidation = await validateBaseline(
+    options.cwd,
+    packageJson,
+    checkedInLockfile,
+    options.signal
+  );
+  if (!baselineValidation.valid || !baselineValidation.lockfile) {
     return report(
       rules.map((rule) => unknownResult(rule, baselineValidation.reason)),
       startTime,
@@ -136,12 +110,20 @@ export async function analyzeOverrides(options: AnalyzerOptions): Promise<Analys
     );
   }
 
+  const baselineLockfile = baselineValidation.lockfile;
   logger.info(
-    `Found ${String(rules.length)} override(s) to analyze (policy: ${policy}, concurrency: ${String(concurrency)})`
+    `Found ${String(rules.length)} override(s) to analyze (npm ${npmVersion ?? "unknown"}, policy: ${policy}, concurrency: ${String(concurrency)})`
   );
 
   // Fast path: one npm resolution proves that the whole selected set is safe.
-  const batch = await validateRemovalSet(options.cwd, packageJson, baselineLockfile, rules, policy);
+  const batch = await validateRemovalSet(
+    options.cwd,
+    packageJson,
+    baselineLockfile,
+    rules,
+    policy,
+    options.signal
+  );
   if (batch.safe) {
     const results = rules.map((rule) => ({
       ...unknownResult(rule, batch.reason),
@@ -169,6 +151,7 @@ export async function analyzeOverrides(options: AnalyzerOptions): Promise<Analys
           baselineLockfile,
           packageJson,
           policy,
+          signal: options.signal,
         });
     if (!cached) cache.set(key, result);
     spinner.update(`Analyzing overrides (${String(++completed)}/${String(rules.length)})`);
@@ -183,7 +166,8 @@ export async function analyzeOverrides(options: AnalyzerOptions): Promise<Analys
     packageJson,
     baselineLockfile,
     redundantRules,
-    policy
+    policy,
+    options.signal
   );
   const rejected = new Set(selected.rejected.map(getRuleId));
   for (const result of results) {
@@ -202,8 +186,7 @@ function report(
   results: OverrideAnalysisResult[],
   start: number,
   platform: string,
-  npmVersion?: string,
-  resolver = "npm"
+  npmVersion?: string
 ): AnalysisReport {
   return {
     total: results.length,
@@ -213,7 +196,7 @@ function report(
     results,
     duration: Date.now() - start,
     platform,
-    resolver,
-    ...(npmVersion ? { npmVersion, resolverVersion: npmVersion } : {}),
+    resolver: "npm",
+    ...(npmVersion ? { resolverVersion: npmVersion } : {}),
   };
 }

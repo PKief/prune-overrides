@@ -1,4 +1,4 @@
-import { execSafe } from "../util/exec.js";
+import { execFileSafe } from "../util/exec.js";
 import { logger } from "../util/logger.js";
 
 export interface NpmExplainNode {
@@ -23,10 +23,10 @@ export interface ExplainOptions {
 export async function npmExplain(options: ExplainOptions): Promise<NpmExplainNode[] | null> {
   const { cwd, packageName } = options;
 
-  const command = `npm explain ${packageName} --json`;
-  logger.debug(`Running: ${command} in ${cwd}`);
+  const args = ["explain", packageName, "--json"];
+  logger.debug(`Running: npm ${args.join(" ")} in ${cwd}`);
 
-  const result = await execSafe(command, { cwd });
+  const result = await execFileSafe("npm", args, { cwd });
 
   if (!result.success || !result.stdout) {
     return null;

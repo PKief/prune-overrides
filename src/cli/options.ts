@@ -4,7 +4,6 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { DEFAULT_CONCURRENCY } from "../config/constants.js";
 import type { SafetyPolicy } from "../analyzer/types.js";
-import type { ResolverName } from "../resolver/types.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageJson = JSON.parse(
@@ -21,7 +20,6 @@ export interface CliOptions {
   concurrency: number;
   policy: SafetyPolicy;
   cache: boolean;
-  resolver: ResolverName;
 }
 
 function printHelp(): void {
@@ -36,8 +34,7 @@ Options:
       --cwd <path>            Working directory
   -v, --verbose               Enable verbose output
   -c, --concurrency <number>  Parallel npm processes (default: ${String(DEFAULT_CONCURRENCY)})
-      --policy <policy>       exact (default), no-downgrade, or full-tree
-      --resolver <resolver>   arborist (default) or npm
+      --policy <policy>       no-downgrade (default), exact, or full-tree
       --no-cache              Disable persistent analysis cache`);
 }
 
@@ -51,8 +48,7 @@ export function parseOptions(): CliOptions {
       cwd: { type: "string", default: process.cwd() },
       verbose: { type: "boolean", default: false, short: "v" },
       concurrency: { type: "string", short: "c" },
-      policy: { type: "string", default: "exact" },
-      resolver: { type: "string", default: "arborist" },
+      policy: { type: "string", default: "no-downgrade" },
       cache: { type: "boolean", default: true },
       help: { type: "boolean", default: false, short: "h" },
       version: { type: "boolean", default: false, short: "V" },
@@ -71,9 +67,6 @@ export function parseOptions(): CliOptions {
   if (!(["exact", "no-downgrade", "full-tree"] as string[]).includes(values.policy)) {
     throw new Error(`Invalid policy: ${values.policy}`);
   }
-  if (!(["arborist", "npm"] as string[]).includes(values.resolver)) {
-    throw new Error(`Invalid resolver: ${values.resolver}`);
-  }
   return {
     dryRun: !values.fix,
     fix: values.fix,
@@ -87,6 +80,5 @@ export function parseOptions(): CliOptions {
     ),
     policy: values.policy as SafetyPolicy,
     cache: values.cache,
-    resolver: values.resolver as ResolverName,
   };
 }

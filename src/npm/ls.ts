@@ -1,4 +1,4 @@
-import { execSafe } from "../util/exec.js";
+import { execFileSafe } from "../util/exec.js";
 import { logger } from "../util/logger.js";
 
 export interface NpmLsDependency {
@@ -28,10 +28,9 @@ export async function npmLs(options: LsOptions): Promise<NpmLsResult | null> {
     args.push("--all");
   }
 
-  const command = `npm ${args.join(" ")}`;
-  logger.debug(`Running: ${command} in ${cwd}`);
+  logger.debug(`Running: npm ${args.join(" ")} in ${cwd}`);
 
-  const result = await execSafe(command, { cwd });
+  const result = await execFileSafe("npm", args, { cwd });
 
   // npm ls returns non-zero exit code even when package is found but has issues
   // We should try to parse the JSON regardless

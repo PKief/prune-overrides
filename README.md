@@ -56,11 +56,8 @@ prune-overrides --cwd /path/to/project
 # Verbose output (shows version details)
 prune-overrides --verbose
 
-# Conservative policies: exact (default), no-downgrade, full-tree
+# no-downgrade is the default; exact and full-tree are stricter alternatives
 prune-overrides --policy full-tree
-
-# Arborist is the default resolver; npm CLI remains available as a fallback
-prune-overrides --resolver npm
 
 # Disable the content-addressed cache
 prune-overrides --no-cache
@@ -129,15 +126,19 @@ For each override entry:
 
 ### Verdict Logic
 
-An override is **REDUNDANT** only if:
+Under the default `no-downgrade` policy, an override is **REDUNDANT** only if:
 
-- The exact same versions resolve with and without the override, OR
-- All versions without the override are equal to or newer than before
+- The same versions resolve without the override, OR
+- It does not introduce any additional version older than the highest override-enabled version
+
+A changed package-instance count is not unsafe by itself; every resulting version is inspected.
 
 An override is **REQUIRED** if:
 
 - ANY version in the tree would become older without the override
-- `npm install` fails without the override
+- npm reports a genuine dependency conflict without the override
+
+Infrastructure failures such as registry authentication, network errors, and timeouts are reported as **UNKNOWN**, never as safe removals.
 
 This ensures that removing an override will **never** cause older versions to be installed anywhere in your dependency tree.
 
@@ -162,7 +163,7 @@ for (const result of report.results) {
 
 ## Requirements
 
-- Node.js >= 22
+- Node.js 22.22.2+, 24.15.0+, or 26+
 - npm (for dependency resolution)
 
 ## Limitations

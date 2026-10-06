@@ -32,7 +32,7 @@ export function reportToConsole(report: AnalysisReport): void {
     }
   }
 
-  if (report.required > 0 && report.redundant > 0) {
+  if (report.required > 0) {
     console.log(styleText("bold", "Required overrides (keep these):"));
     console.log();
 
@@ -63,8 +63,10 @@ export function reportToConsole(report: AnalysisReport): void {
         `Run with ${styleText("bold", "--fix")} to automatically remove ${String(report.redundant)} redundant override(s).`
       )
     );
-  } else if (report.total > 0) {
+  } else if (report.total > 0 && report.unknown === 0) {
     console.log(styleText("green", "All overrides are required. No cleanup needed."));
+  } else if (report.unknown > 0) {
+    console.log(styleText("yellow", "No removals were proven safe."));
   }
 }
 

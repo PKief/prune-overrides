@@ -18,7 +18,8 @@ export async function validateRemovalSet(
   packageJson: PackageJson,
   baseline: Lockfile,
   rules: OverrideRule[],
-  policy: SafetyPolicy
+  policy: SafetyPolicy,
+  signal?: AbortSignal
 ): Promise<ValidationResult> {
   if (rules.length === 0) return { safe: true, reason: "No overrides selected" };
   let modified = packageJson;
@@ -28,7 +29,7 @@ export async function validateRemovalSet(
   try {
     await writePackageJson(workspace.path, modified);
     try {
-      await npmInstall({ cwd: workspace.path });
+      await npmInstall({ cwd: workspace.path, signal });
     } catch {
       return { safe: false, reason: "Combined npm install failed" };
     }
@@ -51,16 +52,17 @@ export async function selectSafeRemovalSet(
   packageJson: PackageJson,
   baseline: Lockfile,
   candidates: OverrideRule[],
-  policy: SafetyPolicy
+  policy: SafetyPolicy,
+  signal?: AbortSignal
 ): Promise<{ safe: OverrideRule[]; rejected: OverrideRule[] }> {
-  if ((await validateRemovalSet(cwd, packageJson, baseline, candidates, policy)).safe) {
+  if ((await validateRemovalSet(cwd, packageJson, baseline, candidates, policy, signal)).safe) {
     return { safe: candidates, rejected: [] };
   }
   const safe: OverrideRule[] = [];
   const rejected: OverrideRule[] = [];
   for (const candidate of candidates) {
     const proposed = [...safe, candidate];
-    if ((await validateRemovalSet(cwd, packageJson, baseline, proposed, policy)).safe)
+    if ((await validateRemovalSet(cwd, packageJson, baseline, proposed, policy, signal)).safe)
       safe.push(candidate);
     else rejected.push(candidate);
   }

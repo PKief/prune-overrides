@@ -4,13 +4,13 @@ import { join } from "node:path";
 import type { OverrideAnalysisResult } from "./types.js";
 
 interface CacheFile {
-  version: 1;
+  version: 2;
   entries: Record<string, OverrideAnalysisResult>;
 }
 
 export class AnalysisCache {
   private readonly path: string;
-  private data: CacheFile = { version: 1, entries: {} };
+  private data: CacheFile = { version: 2, entries: {} };
 
   constructor(cwd: string) {
     this.path = join(cwd, "node_modules", ".cache", "prune-overrides", "results.json");
@@ -44,7 +44,7 @@ function isCacheFile(value: unknown): value is CacheFile {
     typeof value === "object" &&
     value !== null &&
     "version" in value &&
-    value.version === 1 &&
+    value.version === 2 &&
     "entries" in value &&
     typeof value.entries === "object" &&
     value.entries !== null

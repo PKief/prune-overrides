@@ -28,18 +28,20 @@ export function packageNameFromPath(path: string): string | null {
 export function indexResolutions(lockfile: Lockfile): Map<string, Resolution[]> {
   const index = new Map<string, Resolution[]>();
   for (const [path, pkg] of Object.entries(lockfile.packages)) {
-    const name = packageNameFromPath(path);
-    if (!name || !pkg.version) continue;
-    const resolution = toResolution(path, name, pkg);
-    const entries = index.get(name) ?? [];
-    entries.push(resolution);
-    index.set(name, entries);
+    const resolution = toResolution(path, pkg);
+    if (!resolution) continue;
+    const values = index.get(resolution.name) ?? [];
+    values.push(resolution);
+    index.set(resolution.name, values);
   }
-  for (const entries of index.values()) entries.sort((a, b) => a.path.localeCompare(b.path));
+  for (const values of index.values())
+    values.sort((a, b) => identity(a).localeCompare(identity(b)));
   return index;
 }
 
-function toResolution(path: string, name: string, pkg: LockfilePackage): Resolution {
+function toResolution(path: string, pkg: LockfilePackage): Resolution | null {
+  const name = packageNameFromPath(path);
+  if (!name || !pkg.version) return null;
   return {
     path,
     name,
@@ -65,43 +67,76 @@ function equalResolutions(before: Resolution[], after: Resolution[]): boolean {
   return left.size === right.size && [...left].every(([key, count]) => right.get(key) === count);
 }
 
+function versions(values: Resolution[]): string[] {
+  return [...new Set(values.map((value) => value.version))].sort(semver.compare);
+}
+
 export function comparePackageResolutions(
   before: Resolution[],
   after: Resolution[],
   policy: SafetyPolicy
 ): SafetyResult {
   if (before.length === 0 && after.length === 0) return { safe: true, reason: "Package is absent" };
-  if (before.length !== after.length) {
-    return {
-      safe: false,
-      reason: `Package instance count changes (${String(before.length)} → ${String(after.length)})`,
-    };
-  }
+  if (before.length > 0 && after.length === 0)
+    return { safe: false, reason: "Package disappears without the override" };
+
   if (policy === "exact" || policy === "full-tree") {
     return equalResolutions(before, after)
-      ? { safe: true, reason: "Same versions and sources resolve" }
-      : { safe: false, reason: "Package versions or sources change" };
+      ? {
+          safe: true,
+          reason: `npm resolves the same versions without the override: ${versions(after).join(", ")}`,
+        }
+      : { safe: false, reason: "Package versions, sources, or instance counts change" };
   }
 
   const baseline = before.map((entry) => semver.valid(entry.version, { loose: true }));
   const candidate = after.map((entry) => semver.valid(entry.version, { loose: true }));
   if (baseline.some((entry) => !entry) || candidate.some((entry) => !entry)) {
     return equalResolutions(before, after)
-      ? { safe: true, reason: "Same non-semver resolutions" }
-      : { safe: false, reason: "Non-semver resolutions cannot be ordered safely" };
+      ? { safe: true, reason: "npm resolves the same non-semver sources without the override" }
+      : { safe: false, reason: "Package source changes and cannot be ordered safely" };
   }
-  const minimum = semver.minSatisfying(baseline as string[], ">=0.0.0-0", {
+  const maximum = semver.maxSatisfying(baseline as string[], ">=0.0.0-0", {
     loose: true,
     includePrerelease: true,
   });
-  if (!minimum) return { safe: false, reason: "Versions cannot be compared safely" };
-  const older = after.filter((entry) => semver.lt(entry.version, minimum, { loose: true }));
-  return older.length === 0
-    ? { safe: true, reason: "No older versions are introduced" }
-    : {
-        safe: false,
-        reason: `Older versions introduced: ${older.map((entry) => entry.version).join(", ")}`,
-      };
+  if (!maximum) return { safe: false, reason: "Versions cannot be compared safely" };
+
+  const baselineCounts = new Map<string, number>();
+  const candidateCounts = new Map<string, number>();
+  for (const entry of before)
+    baselineCounts.set(entry.version, (baselineCounts.get(entry.version) ?? 0) + 1);
+  for (const entry of after)
+    candidateCounts.set(entry.version, (candidateCounts.get(entry.version) ?? 0) + 1);
+  const older = [...candidateCounts]
+    .filter(
+      ([version, count]) =>
+        count > (baselineCounts.get(version) ?? 0) && semver.lt(version, maximum, { loose: true })
+    )
+    .map(([version]) => version)
+    .sort(semver.compare);
+  const candidateMaximum = semver.maxSatisfying(candidate as string[], ">=0.0.0-0", {
+    loose: true,
+    includePrerelease: true,
+  });
+  if (candidateMaximum && semver.lt(candidateMaximum, maximum, { loose: true }))
+    older.push(candidateMaximum);
+  const uniqueOlder = [...new Set(older)].sort(semver.compare);
+  if (uniqueOlder.length > 0)
+    return {
+      safe: false,
+      reason: `Removing the override introduces older versions: ${uniqueOlder.join(", ")}`,
+    };
+
+  const beforeVersions = versions(before);
+  const afterVersions = versions(after);
+  return {
+    safe: true,
+    reason:
+      beforeVersions.join("\0") === afterVersions.join("\0")
+        ? `npm resolves the same versions without the override: ${afterVersions.join(", ")}`
+        : `npm resolves no older versions without the override: ${afterVersions.join(", ")}`,
+  };
 }
 
 export function compareLockfiles(
@@ -112,13 +147,13 @@ export function compareLockfiles(
 ): SafetyResult {
   const beforeIndex = indexResolutions(before);
   const afterIndex = indexResolutions(after);
-  if (policy !== "full-tree") {
+  if (policy !== "full-tree")
     return comparePackageResolutions(
       beforeIndex.get(packageName) ?? [],
       afterIndex.get(packageName) ?? [],
       policy
     );
-  }
+
   const names = new Set([...beforeIndex.keys(), ...afterIndex.keys()]);
   for (const name of names) {
     const result = comparePackageResolutions(

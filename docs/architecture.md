@@ -94,12 +94,14 @@ The tool checks **ALL versions** of a package across the entire dependency tree,
 An override is only marked as **redundant** if:
 
 - The exact same versions resolve with and without the override, OR
-- All versions without the override are equal to or newer than before
+- Under the default `no-downgrade` policy, no additional version older than the highest override-enabled version is introduced
 
 An override is marked as **required** if:
 
 - ANY version in the tree would become older without the override
-- `npm install` fails without the override
+- npm reports a genuine dependency conflict without the override
+
+Infrastructure failures are reported as **unknown**, never as safe removals.
 
 ### 4. Minimal Dependencies
 
@@ -187,11 +189,11 @@ prune-overrides/
 - **Single responsibility** - One module, one purpose
 - **No direct child_process** - All subprocess calls go through `util/exec.ts`
 
-## Resolver Architecture
+## npm Resolution
 
-The analyzer uses a `DependencyResolver` abstraction. The default `arborist` backend loads npm's virtual tree and builds candidate ideal trees in-process, preserving nodes, dependency edges, peer relationships, sources, and integrity. The `npm` backend remains available as a compatibility fallback with `--resolver npm`.
+The npm CLI is the sole source of truth. The analyzer reproduces the baseline and every candidate in isolated workspaces using the same lockfile, npm configuration, platform, and npm version. It runs `npm install --package-lock-only --ignore-scripts` and compares every matching package instance in the generated lockfiles.
 
-Resolver outcomes are tri-state: resolved, dependency conflict, or infrastructure error. Only dependency evidence may produce a required/redundant verdict; network, authentication, and configuration failures produce `unknown`.
+Outcomes are tri-state. A successful comparison produces `required` or `redundant`; a genuine dependency conflict produces `required`; network, authentication, timeout, configuration, and malformed-output failures produce `unknown`.
 
 ## Core Algorithm
 

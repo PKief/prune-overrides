@@ -9,20 +9,21 @@ import { compareLockfiles } from "../compare/resolutions.js";
 export async function validateBaseline(
   cwd: string,
   packageJson: PackageJson,
-  baseline: Lockfile
-): Promise<{ valid: boolean; reason: string }> {
+  baseline: Lockfile,
+  signal?: AbortSignal
+): Promise<{ valid: boolean; reason: string; lockfile?: Lockfile }> {
   const workspace = await createTempWorkspace(cwd);
   try {
     await writePackageJson(workspace.path, packageJson);
     try {
-      await npmInstall({ cwd: workspace.path });
+      await npmInstall({ cwd: workspace.path, signal });
     } catch {
       return { valid: false, reason: "Baseline package-lock.json cannot be reproduced by npm" };
     }
     const regenerated = await readLockfile(workspace.path);
     const result = compareLockfiles(baseline, regenerated, "", "full-tree");
     return result.safe
-      ? { valid: true, reason: "Baseline lockfile validated" }
+      ? { valid: true, reason: "Baseline lockfile validated", lockfile: regenerated }
       : {
           valid: false,
           reason: `Baseline lockfile is stale or environment-dependent: ${result.reason}`,

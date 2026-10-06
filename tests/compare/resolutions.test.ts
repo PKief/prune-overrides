@@ -31,6 +31,46 @@ describe("resolution safety", () => {
     ).toBe(false);
   });
 
+  it("allows additional instances when none are older", () => {
+    const before = lock({ "node_modules/x": { version: "2.0.0" } });
+    const after = lock({
+      "node_modules/x": { version: "2.0.0" },
+      "node_modules/a/node_modules/x": { version: "3.0.0" },
+    });
+    expect(compareLockfiles(before, after, "x", "no-downgrade")).toEqual({
+      safe: true,
+      reason: "npm resolves no older versions without the override: 2.0.0, 3.0.0",
+    });
+  });
+
+  it("rejects a newly introduced version older than the highest baseline version", () => {
+    const before = lock({
+      "node_modules/x": { version: "2.0.0" },
+      "node_modules/b/node_modules/x": { version: "1.0.0" },
+    });
+    const after = lock({
+      "node_modules/x": { version: "2.0.0" },
+      "node_modules/b/node_modules/x": { version: "1.0.0" },
+      "node_modules/a/node_modules/x": { version: "1.5.0" },
+    });
+    expect(compareLockfiles(before, after, "x", "no-downgrade")).toEqual({
+      safe: false,
+      reason: "Removing the override introduces older versions: 1.5.0",
+    });
+  });
+
+  it("rejects an older nested instance", () => {
+    const before = lock({ "node_modules/x": { version: "2.0.0" } });
+    const after = lock({
+      "node_modules/x": { version: "2.0.0" },
+      "node_modules/a/node_modules/x": { version: "1.5.0" },
+    });
+    expect(compareLockfiles(before, after, "x", "no-downgrade")).toEqual({
+      safe: false,
+      reason: "Removing the override introduces older versions: 1.5.0",
+    });
+  });
+
   it("rejects non-semver changes under no-downgrade", () => {
     const before = lock({ "node_modules/x": { version: "git-a" } });
     const after = lock({ "node_modules/x": { version: "git-b" } });

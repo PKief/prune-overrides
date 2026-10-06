@@ -1,3 +1,5 @@
+import { readFile, writeFile } from "node:fs/promises";
+import { join } from "node:path";
 import type { CliOptions } from "./options.js";
 import { analyzeOverrides } from "../analyzer/analyzeOverrides.js";
 import type { OverrideAnalysisResult } from "../analyzer/types.js";
@@ -6,8 +8,7 @@ import { reportToConsole } from "../report/consoleReporter.js";
 import { readPackageJson } from "../fs/readPackageJson.js";
 import { readLockfile } from "../fs/readLockfile.js";
 import { validateRemovalSet } from "../analyzer/validateRemoval.js";
-import { createResolver } from "../resolver/index.js";
-import { compareGraphs } from "../compare/graphs.js";
+import { validateBaseline } from "../analyzer/validateBaseline.js";
 import { PruneOverridesError as ValidationError } from "../util/errors.js";
 import { writePackageJson, removeOverride } from "../fs/writePackageJson.js";
 import { npmInstall } from "../npm/install.js";
@@ -28,13 +29,12 @@ export async function run(options: CliOptions): Promise<number> {
       concurrency: options.concurrency,
       policy: options.policy,
       cache: options.cache,
-      resolver: options.resolver,
     });
 
     reportToConsole(report);
 
     if (options.fix && report.redundant > 0) {
-      await applyFixes(options.cwd, report.results, options.policy, options.resolver);
+      await applyFixes(options.cwd, report.results, options.policy);
     }
 
     if (report.redundant > 0 && !options.fix) {
@@ -57,8 +57,7 @@ export async function run(options: CliOptions): Promise<number> {
 async function applyFixes(
   cwd: string,
   results: OverrideAnalysisResult[],
-  policy: CliOptions["policy"],
-  resolverName: CliOptions["resolver"]
+  policy: CliOptions["policy"]
 ): Promise<void> {
   const redundantOverrides = results.filter((r) => r.verdict === "redundant");
 
@@ -70,44 +69,23 @@ async function applyFixes(
   logger.info("Validating fixes...");
 
   let packageJson = await readPackageJson(cwd);
-  const baseline = await readLockfile(cwd);
+  const checkedInLockfile = await readLockfile(cwd);
+  const reproduced = await validateBaseline(cwd, packageJson, checkedInLockfile);
+  if (!reproduced.valid || !reproduced.lockfile) {
+    throw new ValidationError(`Refusing to apply fixes: ${reproduced.reason}`, "VALIDATION_ERROR");
+  }
   const rules = redundantOverrides.map((result) => ({
     key: result.name,
     packageName: result.packageName ?? result.name,
     value: result.overrideValue,
     path: result.overridePath ?? [],
   }));
-  if (resolverName === "arborist") {
-    const resolver = await createResolver(resolverName);
-    const baselineOutcome = await resolver.loadBaseline({ cwd });
-    let modified = packageJson;
-    for (const rule of rules) modified = removeOverride(modified, rule.key, rule.path);
-    const candidate = await resolver.resolve(modified, { cwd });
-    const valid =
-      baselineOutcome.status === "resolved" &&
-      baselineOutcome.graph &&
-      candidate.status === "resolved" &&
-      candidate.graph &&
-      compareGraphs(
-        baselineOutcome.graph,
-        candidate.graph,
-        rules.map((rule) => rule.packageName),
-        policy
-      ).safe;
-    if (!valid) {
-      throw new ValidationError(
-        "Refusing to apply fixes because Arborist could not validate the combined removal",
-        "VALIDATION_ERROR"
-      );
-    }
-  } else {
-    const validation = await validateRemovalSet(cwd, packageJson, baseline, rules, policy);
-    if (!validation.safe) {
-      throw new ValidationError(
-        `Refusing to apply unvalidated fixes: ${validation.reason}`,
-        "VALIDATION_ERROR"
-      );
-    }
+  const validation = await validateRemovalSet(cwd, packageJson, reproduced.lockfile, rules, policy);
+  if (!validation.safe) {
+    throw new ValidationError(
+      `Refusing to apply unvalidated fixes: ${validation.reason}`,
+      "VALIDATION_ERROR"
+    );
   }
 
   logger.info("Applying fixes...");
@@ -117,16 +95,24 @@ async function applyFixes(
     logger.success(`Removed override: ${getOverrideDisplayName(override)}`);
   }
 
-  await writePackageJson(cwd, packageJson);
-
+  const packagePath = join(cwd, "package.json");
+  const lockPath = join(cwd, "package-lock.json");
+  const originalPackage = await readFile(packagePath, "utf8");
+  const originalLock = await readFile(lockPath, "utf8");
   const spinner = createSpinner("Regenerating package-lock.json...");
-  spinner.start();
-  await npmInstall({
-    cwd,
-    packageLockOnly: true,
-    ignoreScripts: true,
-  });
-  spinner.success("Lockfile regenerated");
+  try {
+    await writePackageJson(cwd, packageJson);
+    spinner.start();
+    await npmInstall({ cwd, packageLockOnly: true, ignoreScripts: true });
+    spinner.success("Lockfile regenerated");
+  } catch (error) {
+    await Promise.all([
+      writeFile(packagePath, originalPackage, "utf8"),
+      writeFile(lockPath, originalLock, "utf8"),
+    ]);
+    spinner.error("Changes rolled back");
+    throw error;
+  }
 
   logger.newline();
   logger.success(`Removed ${String(redundantOverrides.length)} redundant override(s)`);
