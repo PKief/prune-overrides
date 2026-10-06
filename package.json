@@ -56,6 +56,7 @@
     "node": ">=22.0.0"
   },
   "dependencies": {
+    "@npmcli/arborist": "^10.0.3",
     "semver": "^7.8.5"
   },
   "devDependencies": {
@@ -64,6 +65,7 @@
     "@swc/jest": "^0.2.39",
     "@types/jest": "^30.0.0",
     "@types/node": "^26.0.0",
+    "@types/npmcli__arborist": "^6.3.3",
     "@types/semver": "^7.7.1",
     "eslint": "^10.5.0",
     "eslint-config-prettier": "^10.1.8",

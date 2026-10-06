@@ -1,16 +1,20 @@
-export type OverrideVerdict = "redundant" | "required";
+import type { SafetyPolicy } from "../compare/resolutions.js";
+import type { ResolverName } from "../resolver/types.js";
+
+export type OverrideVerdict = "redundant" | "required" | "unknown";
 
 export interface OverrideAnalysisResult {
+  /** Exact override key (which may include a selector or be "."). */
   name: string;
-  /** Parent chain for nested overrides (e.g., ["@example/eslint-plugin"] for a sub-entry) */
+  /** Actual target package name. */
+  packageName?: string;
   overridePath?: string[];
   overrideValue: string;
-  /** Minimum resolved version with the override (across entire tree) */
   before: string | null;
-  /** Minimum resolved version without the override (across entire tree) */
   after: string | null;
   verdict: OverrideVerdict;
   reason: string;
+  cached?: boolean;
 }
 
 export function getOverrideDisplayName(result: OverrideAnalysisResult): string {
@@ -24,9 +28,14 @@ export interface AnalysisReport {
   total: number;
   redundant: number;
   required: number;
+  unknown: number;
   results: OverrideAnalysisResult[];
-  /** Analysis duration in milliseconds */
   duration: number;
+  /** @deprecated Use resolverVersion. */
+  npmVersion?: string;
+  resolver?: string;
+  resolverVersion?: string;
+  platform: string;
 }
 
 export interface AnalyzerOptions {
@@ -35,4 +44,9 @@ export interface AnalyzerOptions {
   exclude?: string[];
   verbose?: boolean;
   concurrency?: number;
+  policy?: SafetyPolicy;
+  cache?: boolean;
+  resolver?: ResolverName;
 }
+
+export type { SafetyPolicy };

@@ -33,7 +33,11 @@ export async function readLockfile(dir: string): Promise<Lockfile> {
       throw new LockfileError("Invalid lockfile format: missing 'packages' field");
     }
 
-    return parsed as Lockfile;
+    const lockfile = parsed as Lockfile;
+    if (!Number.isInteger(lockfile.lockfileVersion) || lockfile.lockfileVersion < 2) {
+      throw new LockfileError("Unsupported lockfile: lockfileVersion 2 or newer is required");
+    }
+    return lockfile;
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") {
       throw new LockfileError(

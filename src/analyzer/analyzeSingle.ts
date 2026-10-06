@@ -1,4 +1,5 @@
-import type { OverrideAnalysisResult } from "./types.js";
+import type { OverrideAnalysisResult, SafetyPolicy } from "./types.js";
+import type { OverrideRule } from "./overrideRule.js";
 import { createTempWorkspace } from "../fs/tempWorkspace.js";
 import type { PackageJson } from "../fs/readPackageJson.js";
 import { writePackageJson, removeOverride } from "../fs/writePackageJson.js";
@@ -6,136 +7,80 @@ import { readLockfile, getAllResolvedVersions } from "../fs/readLockfile.js";
 import type { Lockfile } from "../fs/readLockfile.js";
 import { npmInstall } from "../npm/install.js";
 import { logger } from "../util/logger.js";
-import { findMinVersion, wouldIntroduceOlderVersions, getOlderVersions } from "../util/semver.js";
+import { findMinVersion } from "../util/semver.js";
+import { compareLockfiles } from "../compare/resolutions.js";
 
 export interface AnalyzeSingleOptions {
   cwd: string;
   overrideKey: string;
   overrideValue: string;
   overridePath?: string[];
+  packageName?: string;
   baselineLockfile: Lockfile;
   packageJson: PackageJson;
+  policy?: SafetyPolicy;
 }
 
 export async function analyzeSingleOverride(
   options: AnalyzeSingleOptions
 ): Promise<OverrideAnalysisResult> {
-  const { cwd, overrideKey, overrideValue, overridePath } = options;
+  const rule: OverrideRule = {
+    key: options.overrideKey,
+    packageName: options.packageName ?? options.overrideKey,
+    value: options.overrideValue,
+    path: options.overridePath ?? [],
+  };
+  const beforeVersions = getAllResolvedVersions(options.baselineLockfile, rule.packageName);
+  const base = {
+    name: rule.key,
+    packageName: rule.packageName,
+    ...(rule.path.length > 0 ? { overridePath: rule.path } : {}),
+    overrideValue: rule.value,
+    before: findMinVersion(beforeVersions),
+  };
 
-  logger.debug(
-    `Analyzing override: ${overridePath ? [...overridePath, overrideKey].join(" > ") : overrideKey} -> ${overrideValue}`
-  );
-
-  const beforeVersions = getAllResolvedVersions(options.baselineLockfile, overrideKey);
-  const beforeMinVersion = findMinVersion(beforeVersions);
-
-  logger.debug(
-    `Current versions of ${overrideKey}: ${beforeVersions.length > 0 ? beforeVersions.join(", ") : "none"}`
-  );
-
-  const modifiedPackageJson = removeOverride(options.packageJson, overrideKey, overridePath);
-
-  const workspace = await createTempWorkspace(cwd);
-
+  logger.debug(`Analyzing override: ${[...rule.path, rule.key].join(" > ")} -> ${rule.value}`);
+  const workspace = await createTempWorkspace(options.cwd);
   try {
-    await writePackageJson(workspace.path, modifiedPackageJson);
-
+    await writePackageJson(
+      workspace.path,
+      removeOverride(options.packageJson, rule.key, rule.path)
+    );
     try {
-      await npmInstall({
-        cwd: workspace.path,
-        packageLockOnly: true,
-        ignoreScripts: true,
-      });
+      await npmInstall({ cwd: workspace.path });
     } catch (error) {
-      // Install error means the override is required
       logger.debug(`npm install failed without override: ${String(error)}`);
       return {
-        name: overrideKey,
-        ...(overridePath ? { overridePath } : {}),
-        overrideValue,
-        before: beforeMinVersion,
+        ...base,
         after: null,
-        verdict: "required",
-        reason: "npm install fails without this override",
+        verdict: "unknown",
+        reason: "Could not resolve without override; npm install failed",
       };
     }
 
-    const newLockfile = await readLockfile(workspace.path);
-    const afterVersions = getAllResolvedVersions(newLockfile, overrideKey);
-    const afterMinVersion = findMinVersion(afterVersions);
-
-    logger.debug(
-      `Versions without override: ${afterVersions.length > 0 ? afterVersions.join(", ") : "none"}`
+    let candidate: Lockfile;
+    try {
+      candidate = await readLockfile(workspace.path);
+    } catch (error) {
+      return {
+        ...base,
+        after: null,
+        verdict: "unknown",
+        reason: `Generated lockfile is unreadable: ${String(error)}`,
+      };
+    }
+    const afterVersions = getAllResolvedVersions(candidate, rule.packageName);
+    const safety = compareLockfiles(
+      options.baselineLockfile,
+      candidate,
+      rule.packageName,
+      options.policy ?? "exact"
     );
-
-    if (beforeVersions.length === 0 && afterVersions.length === 0) {
-      return {
-        name: overrideKey,
-        ...(overridePath ? { overridePath } : {}),
-        overrideValue,
-        before: null,
-        after: null,
-        verdict: "redundant",
-        reason: "Package not found in dependency tree",
-      };
-    }
-
-    // Check if removing the override would introduce ANY older versions
-    if (wouldIntroduceOlderVersions(beforeVersions, afterVersions)) {
-      const olderVersions = getOlderVersions(afterVersions, beforeMinVersion ?? "0.0.0");
-      return {
-        name: overrideKey,
-        ...(overridePath ? { overridePath } : {}),
-        overrideValue,
-        before: beforeMinVersion,
-        after: afterMinVersion,
-        verdict: "required",
-        reason: `Would introduce older version(s): ${olderVersions.join(", ")} (currently all at ${beforeMinVersion ?? "unknown"} or newer)`,
-      };
-    }
-
-    const beforeSet = new Set(beforeVersions);
-    const afterSet = new Set(afterVersions);
-    const setsEqual =
-      beforeSet.size === afterSet.size && [...beforeSet].every((v) => afterSet.has(v));
-
-    if (setsEqual) {
-      return {
-        name: overrideKey,
-        ...(overridePath ? { overridePath } : {}),
-        overrideValue,
-        before: beforeMinVersion,
-        after: afterMinVersion,
-        verdict: "redundant",
-        reason: "Same version(s) resolve with and without override",
-      };
-    }
-
-    // Versions changed but no older versions introduced - could be redundant
-    // This happens when the override was pinning to a version that dependencies
-    // would naturally resolve to anyway (or newer)
-    if (!wouldIntroduceOlderVersions(beforeVersions, afterVersions)) {
-      // All versions in 'after' are >= min version in 'before'
-      // This means the override isn't preventing downgrades
-      return {
-        name: overrideKey,
-        ...(overridePath ? { overridePath } : {}),
-        overrideValue,
-        before: beforeMinVersion,
-        after: afterMinVersion,
-        verdict: "redundant",
-        reason: `No older versions would be introduced (before: ${beforeVersions.join(", ")}, after: ${afterVersions.join(", ")})`,
-      };
-    }
-
     return {
-      name: overrideKey,
-      ...(overridePath ? { overridePath } : {}),
-      overrideValue,
-      before: beforeMinVersion,
-      after: afterMinVersion,
-      verdict: "required",
-      reason: `Version changes from ${beforeMinVersion ?? "none"} to ${afterMinVersion ?? "none"} without override`,
+      ...base,
+      after: findMinVersion(afterVersions),
+      verdict: safety.safe ? "redundant" : "required",
+      reason: safety.reason,
     };
   } finally {
     await workspace.cleanup();

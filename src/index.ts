@@ -3,6 +3,12 @@ export { parseOptions } from "./cli/options.js";
 export type { CliOptions } from "./cli/options.js";
 
 export { analyzeOverrides } from "./analyzer/analyzeOverrides.js";
+export {
+  flattenOverrideRules,
+  parseOverridePackageName,
+  getRuleId,
+} from "./analyzer/overrideRule.js";
+export type { OverrideRule } from "./analyzer/overrideRule.js";
 export { analyzeSingleOverride } from "./analyzer/analyzeSingle.js";
 export type { AnalyzeSingleOptions } from "./analyzer/analyzeSingle.js";
 
@@ -30,6 +36,23 @@ export {
 } from "./compare/compareResolution.js";
 export { diffLockfiles, filterDiffsByPackage, hasChangesForPackage } from "./compare/diffTree.js";
 export type { DiffEntry } from "./compare/diffTree.js";
+export {
+  compareLockfiles,
+  comparePackageResolutions,
+  indexResolutions,
+} from "./compare/resolutions.js";
+export type { Resolution, SafetyResult, SafetyPolicy } from "./compare/resolutions.js";
+export { compareGraphs, graphVersions } from "./compare/graphs.js";
+export { createResolver } from "./resolver/index.js";
+export type {
+  DependencyResolver,
+  ResolverName,
+  ResolvedGraph,
+  ResolvedNode,
+  ResolvedEdge,
+  ResolutionOutcome,
+  ResolverDiagnostic,
+} from "./resolver/types.js";
 
 export { reportToConsole } from "./report/consoleReporter.js";
 

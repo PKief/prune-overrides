@@ -55,6 +55,15 @@ prune-overrides --cwd /path/to/project
 
 # Verbose output (shows version details)
 prune-overrides --verbose
+
+# Conservative policies: exact (default), no-downgrade, full-tree
+prune-overrides --policy full-tree
+
+# Arborist is the default resolver; npm CLI remains available as a fallback
+prune-overrides --resolver npm
+
+# Disable the content-addressed cache
+prune-overrides --no-cache
 ```
 
 ## Example Output
@@ -89,23 +98,23 @@ Run with --fix to automatically remove 1 redundant override(s).
 
 ## Options
 
-| Option | Description |
-|--------|-------------|
-| `--dry-run` | Analyze without making changes (default) |
-| `--fix` | Remove redundant overrides from package.json |
-| `--json` | Output results as JSON |
-| `--include <packages...>` | Only analyze specific packages |
-| `--exclude <packages...>` | Exclude specific packages from analysis |
-| `--cwd <path>` | Working directory |
-| `-v, --verbose` | Enable verbose output |
+| Option                    | Description                                  |
+| ------------------------- | -------------------------------------------- |
+| `--dry-run`               | Analyze without making changes (default)     |
+| `--fix`                   | Remove redundant overrides from package.json |
+| `--json`                  | Output results as JSON                       |
+| `--include <packages...>` | Only analyze specific packages               |
+| `--exclude <packages...>` | Exclude specific packages from analysis      |
+| `--cwd <path>`            | Working directory                            |
+| `-v, --verbose`           | Enable verbose output                        |
 
 ## Exit Codes
 
-| Code | Meaning |
-|------|---------|
-| 0 | No redundant overrides (or all removed with `--fix`) |
-| 1 | Redundant overrides found (dry-run mode) |
-| 2 | Error |
+| Code | Meaning                                              |
+| ---- | ---------------------------------------------------- |
+| 0    | No redundant overrides (or all removed with `--fix`) |
+| 1    | Redundant overrides found (dry-run mode)             |
+| 2    | Error                                                |
 
 ## How It Works
 
@@ -121,10 +130,12 @@ For each override entry:
 ### Verdict Logic
 
 An override is **REDUNDANT** only if:
+
 - The exact same versions resolve with and without the override, OR
 - All versions without the override are equal to or newer than before
 
 An override is **REQUIRED** if:
+
 - ANY version in the tree would become older without the override
 - `npm install` fails without the override
 
@@ -133,7 +144,7 @@ This ensures that removing an override will **never** cause older versions to be
 ## Programmatic Usage
 
 ```typescript
-import { analyzeOverrides } from 'prune-overrides';
+import { analyzeOverrides } from "prune-overrides";
 
 const report = await analyzeOverrides({
   cwd: process.cwd(),
@@ -143,7 +154,7 @@ const report = await analyzeOverrides({
 console.log(`Found ${report.redundant} redundant overrides`);
 
 for (const result of report.results) {
-  if (result.verdict === 'redundant') {
+  if (result.verdict === "redundant") {
     console.log(`${result.name} can be removed: ${result.reason}`);
   }
 }
@@ -151,13 +162,14 @@ for (const result of report.results) {
 
 ## Requirements
 
-- Node.js >= 18
+- Node.js >= 22
 - npm (for dependency resolution)
 
 ## Limitations
 
 - **npm only** - Does not support yarn or pnpm (yet)
-- **Simple overrides only** - Nested overrides like `{ "foo": { "bar": "1.0.0" } }` are skipped
+- **Local/workspace dependencies** - These are reported as `unknown` because isolated resolution may change relative paths
+- **Platform-specific** - Results apply to the OS and architecture shown in the report
 - **No CVE checking** - Does not verify if versions have known vulnerabilities
 
 ## License

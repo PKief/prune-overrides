@@ -187,6 +187,12 @@ prune-overrides/
 - **Single responsibility** - One module, one purpose
 - **No direct child_process** - All subprocess calls go through `util/exec.ts`
 
+## Resolver Architecture
+
+The analyzer uses a `DependencyResolver` abstraction. The default `arborist` backend loads npm's virtual tree and builds candidate ideal trees in-process, preserving nodes, dependency edges, peer relationships, sources, and integrity. The `npm` backend remains available as a compatibility fallback with `--resolver npm`.
+
+Resolver outcomes are tri-state: resolved, dependency conflict, or infrastructure error. Only dependency evidence may produce a required/redundant verdict; network, authentication, and configuration failures produce `unknown`.
+
 ## Core Algorithm
 
 For each override entry `K`:
@@ -314,7 +320,7 @@ Tests use Jest with SWC for fast ESM-compatible execution.
 ## Known Limitations
 
 1. **npm only** - Does not support yarn or pnpm
-2. **Simple overrides only** - Nested overrides like `{ "foo": { "bar": "1.0.0" } }` are skipped
-3. **No workspace support** - npm workspaces not handled
-4. **Sequential analysis** - Overrides analyzed one at a time (no parallelism)
-5. **Lockfile version 2+ only** - Older npm lockfiles (v1) not supported
+2. **Local/workspace dependencies** - Reported as `unknown` because isolated resolution is not reproducible safely
+3. **Platform-specific resolution** - Results apply to the reported OS and architecture
+4. **No vulnerability database lookup** - Safety policies compare dependency resolution, not CVEs
+5. **Lockfile version 2+ only** - Older npm lockfiles (v1) are not supported

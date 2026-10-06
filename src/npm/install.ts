@@ -18,7 +18,7 @@ export async function npmInstall(options: InstallOptions): Promise<void> {
     timeout = DEFAULT_NPM_TIMEOUT,
   } = options;
 
-  const args: string[] = ["install"];
+  const args: string[] = ["install", "--no-audit", "--no-fund", "--prefer-offline"];
 
   if (packageLockOnly) {
     args.push("--package-lock-only");
