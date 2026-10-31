@@ -1,5 +1,27 @@
 # Changelog
 
+## v0.3.0
+
+[compare changes](https://github.com/PKief/prune-overrides/compare/v0.2.2...v0.3.0)
+
+### Enhancements
+
+- Add arborist resolver and safety policies ([d3c00c01](https://github.com/PKief/prune-overrides/commit/d3c00c0145bc112f8f9728c8f06ddd6fe784ccf7))
+
+### Fixes
+
+- Adjust README.md ([88a50fab](https://github.com/PKief/prune-overrides/commit/88a50fab31bfd490d77368807e76d94264b0ec8d))
+- Update changelog ([002c25b0](https://github.com/PKief/prune-overrides/commit/002c25b067f758da123ca40e9054f726545c0be8))
+
+### Refactors
+
+- Modernize npm CLI integration and improve abort signal handling ([35675f4e](https://github.com/PKief/prune-overrides/commit/35675f4e7889dd056f2c94e48225462661920ee1))
+- Simplify CLI, tooling, tests and docs ([9182f270](https://github.com/PKief/prune-overrides/commit/9182f270cb66a62b7f591358cabd80fbe37e34f3))
+
+### Contributors
+
+- Philipp Kief ([@PKief](https://github.com/PKief))
+
 ## v0.2.2
 
 [compare changes](https://github.com/PKief/prune-overrides/compare/v0.2.1...v0.2.2)
