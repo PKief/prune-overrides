@@ -1,4 +1,7 @@
-export function versionsMatch(before: string | null, after: string | null): boolean {
+export function versionsMatch(
+  before: string | null,
+  after: string | null,
+): boolean {
   if (before === null && after === null) {
     return true;
   }
@@ -12,12 +15,15 @@ export function versionsMatch(before: string | null, after: string | null): bool
 
 export function overrideAffectsResolution(
   withOverride: string | null,
-  withoutOverride: string | null
+  withoutOverride: string | null,
 ): boolean {
   return !versionsMatch(withOverride, withoutOverride);
 }
 
-export function describeChange(before: string | null, after: string | null): string {
+export function describeChange(
+  before: string | null,
+  after: string | null,
+): string {
   if (before === null && after === null) {
     return "Package not in dependency tree";
   }

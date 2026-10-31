@@ -25,7 +25,7 @@ export function parseOverridePackageName(key: string): string | null {
 
 export function flattenOverrideRules(
   overrides: Record<string, OverrideValue>,
-  parentPath: string[] = []
+  parentPath: string[] = [],
 ): OverrideRule[] {
   const rules: OverrideRule[] = [];
 
@@ -36,7 +36,8 @@ export function flattenOverrideRules(
         key === "." && parentKey
           ? parseOverridePackageName(parentKey)
           : parseOverridePackageName(key);
-      if (packageName) rules.push({ key, packageName, value, path: parentPath });
+      if (packageName)
+        rules.push({ key, packageName, value, path: parentPath });
     } else {
       rules.push(...flattenOverrideRules(value, [...parentPath, key]));
     }

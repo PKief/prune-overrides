@@ -1,12 +1,16 @@
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
 import {
   diffLockfiles,
   filterDiffsByPackage,
   hasChangesForPackage,
-} from "../../src/compare/diffTree.js";
-import { type Lockfile } from "../../src/fs/readLockfile.js";
+} from "./diffTree.js";
+import { type Lockfile } from "../fs/readLockfile.js";
 
 describe("diffTree", () => {
-  const createLockfile = (packages: Record<string, { version: string }>): Lockfile => ({
+  const createLockfile = (
+    packages: Record<string, { version: string }>,
+  ): Lockfile => ({
     lockfileVersion: 3,
     packages: {
       "": { version: "1.0.0" },
@@ -23,8 +27,8 @@ describe("diffTree", () => {
 
       const diffs = diffLockfiles(before, after);
 
-      expect(diffs).toHaveLength(1);
-      expect(diffs[0]).toEqual({
+      assert.strictEqual(diffs.length, 1);
+      assert.deepStrictEqual(diffs[0], {
         packagePath: "node_modules/lodash",
         packageName: "lodash",
         beforeVersion: null,
@@ -41,8 +45,8 @@ describe("diffTree", () => {
 
       const diffs = diffLockfiles(before, after);
 
-      expect(diffs).toHaveLength(1);
-      expect(diffs[0]).toEqual({
+      assert.strictEqual(diffs.length, 1);
+      assert.deepStrictEqual(diffs[0], {
         packagePath: "node_modules/lodash",
         packageName: "lodash",
         beforeVersion: "4.17.21",
@@ -61,8 +65,8 @@ describe("diffTree", () => {
 
       const diffs = diffLockfiles(before, after);
 
-      expect(diffs).toHaveLength(1);
-      expect(diffs[0]).toEqual({
+      assert.strictEqual(diffs.length, 1);
+      assert.deepStrictEqual(diffs[0], {
         packagePath: "node_modules/lodash",
         packageName: "lodash",
         beforeVersion: "4.17.20",
@@ -81,7 +85,7 @@ describe("diffTree", () => {
 
       const diffs = diffLockfiles(before, after);
 
-      expect(diffs).toHaveLength(0);
+      assert.strictEqual(diffs.length, 0);
     });
 
     it("should handle scoped packages", () => {
@@ -92,8 +96,8 @@ describe("diffTree", () => {
 
       const diffs = diffLockfiles(before, after);
 
-      expect(diffs).toHaveLength(1);
-      expect(diffs[0]?.packageName).toBe("@types/node");
+      assert.strictEqual(diffs.length, 1);
+      assert.strictEqual(diffs[0]?.packageName, "@types/node");
     });
   });
 
@@ -118,8 +122,8 @@ describe("diffTree", () => {
 
       const filtered = filterDiffsByPackage(diffs, "lodash");
 
-      expect(filtered).toHaveLength(1);
-      expect(filtered[0]?.packageName).toBe("lodash");
+      assert.strictEqual(filtered.length, 1);
+      assert.strictEqual(filtered[0]?.packageName, "lodash");
     });
   });
 
@@ -135,7 +139,7 @@ describe("diffTree", () => {
         },
       ];
 
-      expect(hasChangesForPackage(diffs, "lodash")).toBe(true);
+      assert.strictEqual(hasChangesForPackage(diffs, "lodash"), true);
     });
 
     it("should return false when package has no changes", () => {
@@ -149,7 +153,7 @@ describe("diffTree", () => {
         },
       ];
 
-      expect(hasChangesForPackage(diffs, "lodash")).toBe(false);
+      assert.strictEqual(hasChangesForPackage(diffs, "lodash"), false);
     });
   });
 });

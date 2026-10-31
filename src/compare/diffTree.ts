@@ -10,7 +10,10 @@ export interface DiffEntry {
 
 export function diffLockfiles(before: Lockfile, after: Lockfile): DiffEntry[] {
   const diffs: DiffEntry[] = [];
-  const allPaths = new Set([...Object.keys(before.packages), ...Object.keys(after.packages)]);
+  const allPaths = new Set([
+    ...Object.keys(before.packages),
+    ...Object.keys(after.packages),
+  ]);
 
   for (const packagePath of allPaths) {
     if (packagePath === "") continue;
@@ -80,10 +83,16 @@ function extractPackageName(packagePath: string): string {
   return regularMatch?.[1] ?? lastPart ?? "";
 }
 
-export function filterDiffsByPackage(diffs: DiffEntry[], packageName: string): DiffEntry[] {
+export function filterDiffsByPackage(
+  diffs: DiffEntry[],
+  packageName: string,
+): DiffEntry[] {
   return diffs.filter((diff) => diff.packageName === packageName);
 }
 
-export function hasChangesForPackage(diffs: DiffEntry[], packageName: string): boolean {
+export function hasChangesForPackage(
+  diffs: DiffEntry[],
+  packageName: string,
+): boolean {
   return diffs.some((diff) => diff.packageName === packageName);
 }

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="How prune-overrides scans the dependency tree and validates safe fixes.">
+  <title>How it works — prune-overrides</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header>
+    <a class="brand" href="index.html">prune-overrides</a>
+    <nav aria-label="Main navigation">
+      <a href="index.html">Start</a>
+      <a href="architecture.html" aria-current="page">How it works</a>
+      <a href="recipes.html">Development</a>
+      <a href="patterns.html">Code patterns</a>
+    </nav>
+  </header>
+  <main id="main">
+    <p class="eyebrow">Architecture</p>
+    <h1>Let npm resolve. Then compare.</h1>
+    <p class="lead">Use real npm resolution in isolated workspaces, not guesses about version ranges.</p>
+    <section aria-labelledby="scan">
+      <h2 id="scan">The scan</h2>
+      <ol>
+        <li>Read the project’s overrides and lockfile. Keep nested rules and version selectors intact.</li>
+        <li>Reproduce the baseline with npm in a temporary workspace.</li>
+        <li>Remove one override in another workspace and regenerate its lockfile.</li>
+        <li>Compare every resolved version of the target package, including nested copies.</li>
+        <li>Check that redundant candidates are also safe to remove together.</li>
+        <li>Show the verdicts and clean up the workspaces.</li>
+      </ol>
+      <pre><code>npm install --package-lock-only --ignore-scripts</code></pre>
+      <p>Workspaces use the project’s lockfile and npm configuration. No dependency scripts run.</p>
+      <p class="note"><strong>Never check only the root package.</strong> A nested dependency can fall back to an older version even when the root version stays the same.</p>
+    </section>
+    <section aria-labelledby="safety">
+      <h2 id="safety">What counts as safe?</h2>
+      <p>The CLI uses <code>no-downgrade</code>: unchanged versions are safe; new versions must not be older than the highest override-enabled version. A different package-instance count alone is not a failure.</p>
+      <p>Dependency conflicts mean required. Network, authentication, timeout, or invalid lockfile failures mean unknown. Neither is removed.</p>
+      <p>The library also offers <code>exact</code> (same target-package identities) and <code>full-tree</code> (same identities across the tree). These are not CLI options.</p>
+    </section>
+    <section aria-labelledby="fix">
+      <h2 id="fix">The fix</h2>
+      <p>Reproduce the baseline again and validate the whole removal set. Only then edit <code>package.json</code> and regenerate <code>package-lock.json</code>. Restore both files if generation fails.</p>
+    </section>
+    <section aria-labelledby="layout">
+      <h2 id="layout">Where the code lives</h2>
+      <dl>
+        <dt><code>src/bin/</code> and <code>src/cli/</code></dt><dd>Entry point, arguments, scan, and fix.</dd>
+        <dt><code>src/analyzer/</code></dt><dd>Override rules, isolated checks, and removal validation.</dd>
+        <dt><code>src/compare/</code></dt><dd>Compare versions and package identities.</dd>
+        <dt><code>src/fs/</code> and <code>src/npm/</code></dt><dd>Read files, manage workspaces, and run npm.</dd>
+        <dt><code>src/report/</code> and <code>src/util/</code></dt><dd>Output, errors, subprocess helpers, and semver utilities.</dd>
+        <dt><code>src/index.ts</code></dt><dd>Public library exports.</dd>
+      </dl>
+    </section>
+    <section id="error-handling" aria-labelledby="errors">
+      <h2 id="errors">Errors and cleanup</h2>
+      <p>Use <code>PruneOverridesError</code> and its package, lockfile, npm, workspace, or configuration subclasses. Keep messages actionable. Always clean up temporary workspaces in <code>finally</code>.</p>
+    </section>
+    <section aria-labelledby="limits">
+      <h2 id="limits">Limits</h2>
+      <p>npm only, lockfile v2+, and platform-specific results. Relative or workspace dependencies may not be reproducible safely. Version checks do not look up CVEs.</p>
+    </section>
+  </main>
+  <footer><a href="https://github.com/PKief/prune-overrides">Source on GitHub</a> · <a href="patterns.html">Coding conventions</a></footer>
+</body>
+</html>

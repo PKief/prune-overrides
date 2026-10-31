@@ -20,7 +20,9 @@ export interface ExplainOptions {
   packageName: string;
 }
 
-export async function npmExplain(options: ExplainOptions): Promise<NpmExplainNode[] | null> {
+export async function npmExplain(
+  options: ExplainOptions,
+): Promise<NpmExplainNode[] | null> {
   const { cwd, packageName } = options;
 
   const args = ["explain", packageName, "--json"];

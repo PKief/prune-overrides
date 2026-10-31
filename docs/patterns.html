@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Simple conventions for imports, errors, logging, subprocesses, and dependency checks.">
+  <title>Code patterns — prune-overrides</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header>
+    <a class="brand" href="index.html">prune-overrides</a>
+    <nav aria-label="Main navigation">
+      <a href="index.html">Start</a>
+      <a href="architecture.html">How it works</a>
+      <a href="recipes.html">Development</a>
+      <a href="patterns.html" aria-current="page">Code patterns</a>
+    </nav>
+  </header>
+  <main id="main">
+    <p class="eyebrow">Code patterns</p>
+    <h1>Keep it predictable.</h1>
+    <p class="lead">Small modules, shared helpers, and clear failures.</p>
+    <section aria-labelledby="imports">
+      <h2 id="imports">Imports and versions</h2>
+      <p>Use <code>.js</code> in relative ESM imports, even in TypeScript. Use the official <code>semver</code> package; don’t parse versions yourself.</p>
+      <pre><code>import { getAllResolvedVersions } from "../fs/readLockfile.js";
+
+const versions = getAllResolvedVersions(lockfile, packageName);</code></pre>
+      <p class="note">Inspect all resolved versions, not just the root. Keep tests for nested dependencies.</p>
+    </section>
+    <section aria-labelledby="errors">
+      <h2 id="errors">Errors</h2>
+      <p>Use the error classes in <code>src/util/errors.ts</code>. Explain what failed and what the user can do.</p>
+      <pre><code>import { PackageJsonError } from "../util/errors.js";
+
+throw new PackageJsonError("Cannot read package.json. Check the project directory.");</code></pre>
+      <p>See <a href="architecture.html#error-handling">error handling and cleanup</a>.</p>
+    </section>
+    <section aria-labelledby="logging">
+      <h2 id="logging">Logging</h2>
+      <pre><code>import { logger } from "../util/logger.js";
+
+logger.info("Analyzing overrides...");
+logger.success("Lockfile regenerated");
+logger.warn("Could not verify this override");
+logger.error("Cannot read package-lock.json");
+logger.debug("Extra details for library callers");</code></pre>
+      <p>Debug output is enabled programmatically, not with a CLI flag.</p>
+    </section>
+    <section aria-labelledby="processes">
+      <h2 id="processes">Run subprocesses safely</h2>
+      <p>Production code uses <code>src/util/exec.ts</code>. Pass the executable and arguments separately, without a shell command string.</p>
+      <pre><code>import { execFile, execFileSafe } from "../util/exec.js";
+
+// Throws on failure.
+const result = await execFile("npm", ["--version"], { cwd });
+
+// Returns a success flag instead.
+const checked = await execFileSafe("npm", ["--version"], { cwd });</code></pre>
+    </section>
+    <section aria-labelledby="cleanup">
+      <h2 id="cleanup">Always clean up</h2>
+      <pre><code>const workspace = await createTempWorkspace(cwd);
+try {
+  // Run the isolated check.
+} finally {
+  await workspace.cleanup();
+}</code></pre>
+      <p>Keep project writes in the fix path. Never turn a failed check into a redundant verdict.</p>
+    </section>
+  </main>
+  <footer><a href="https://github.com/PKief/prune-overrides">Source on GitHub</a> · <a href="recipes.html">Development guide</a></footer>
+</body>
+</html>

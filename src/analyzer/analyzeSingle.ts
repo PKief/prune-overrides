@@ -24,7 +24,7 @@ export interface AnalyzeSingleOptions {
 }
 
 export async function analyzeSingleOverride(
-  options: AnalyzeSingleOptions
+  options: AnalyzeSingleOptions,
 ): Promise<OverrideAnalysisResult> {
   const rule: OverrideRule = {
     key: options.overrideKey,
@@ -32,7 +32,10 @@ export async function analyzeSingleOverride(
     value: options.overrideValue,
     path: options.overridePath ?? [],
   };
-  const beforeVersions = getAllResolvedVersions(options.baselineLockfile, rule.packageName);
+  const beforeVersions = getAllResolvedVersions(
+    options.baselineLockfile,
+    rule.packageName,
+  );
   const base = {
     name: rule.key,
     packageName: rule.packageName,
@@ -41,12 +44,14 @@ export async function analyzeSingleOverride(
     before: findMinVersion(beforeVersions),
   };
 
-  logger.debug(`Analyzing override: ${[...rule.path, rule.key].join(" > ")} -> ${rule.value}`);
+  logger.debug(
+    `Analyzing override: ${[...rule.path, rule.key].join(" > ")} -> ${rule.value}`,
+  );
   const workspace = await createTempWorkspace(options.cwd);
   try {
     await writePackageJson(
       workspace.path,
-      removeOverride(options.packageJson, rule.key, rule.path)
+      removeOverride(options.packageJson, rule.key, rule.path),
     );
     try {
       await npmInstall({ cwd: workspace.path, signal: options.signal });
@@ -77,7 +82,7 @@ export async function analyzeSingleOverride(
       options.baselineLockfile,
       candidate,
       rule.packageName,
-      options.policy ?? "no-downgrade"
+      options.policy ?? "no-downgrade",
     );
     return {
       ...base,

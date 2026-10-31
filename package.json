@@ -20,19 +20,13 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
+    "build": "tsc --project tsconfig.build.json",
+    "dev": "tsc --project tsconfig.build.json --watch",
     "start": "node dist/bin/prune-overrides.js",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
-    "test:watch": "NODE_OPTIONS='--experimental-vm-modules' jest --watch",
-    "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' jest --coverage",
+    "test": "node --import ./scripts/loader.js --test src/**/*.test.ts",
+    "test:coverage": "node --import ./scripts/loader.js --test --experimental-test-coverage src/**/*.test.ts",
     "typecheck": "tsc --noEmit",
-    "prepublishOnly": "npm run build",
-    "prepare": "husky"
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "npm",
@@ -52,26 +46,23 @@
     "url": "https://github.com/PKief/prune-overrides/issues"
   },
   "homepage": "https://github.com/PKief/prune-overrides#readme",
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": ">=26.0.0",
+      "onFail": "error"
+    }
+  },
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=22.15.0"
   },
   "dependencies": {
     "semver": "^7.8.5"
   },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
-    "@swc/core": "^1.15.43",
-    "@swc/jest": "^0.2.39",
-    "@types/jest": "^30.0.0",
-    "@types/node": "^26.0.0",
-    "@types/semver": "^7.7.1",
-    "eslint": "^10.5.0",
-    "eslint-config-prettier": "^10.1.8",
-    "husky": "^9.1.7",
-    "jest": "^30.4.2",
-    "lint-staged": "^17.0.8",
-    "prettier": "^3.8.4",
-    "typescript": "^6.0.3",
-    "typescript-eslint": "^8.62.0"
+    "@types/node": "^26.6.6",
+    "@types/semver": "^7.8.0",
+    "changelog-machine": "^2.1.0",
+    "typescript": "^7.0.2"
   }
 }

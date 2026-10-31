@@ -47,7 +47,10 @@ export async function npmLs(options: LsOptions): Promise<NpmLsResult | null> {
   }
 }
 
-export function extractVersionsFromLs(lsResult: NpmLsResult, packageName: string): string[] {
+export function extractVersionsFromLs(
+  lsResult: NpmLsResult,
+  packageName: string,
+): string[] {
   const versions = new Set<string>();
 
   function traverse(deps: Record<string, NpmLsDependency> | undefined): void {

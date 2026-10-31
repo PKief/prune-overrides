@@ -4,9 +4,9 @@ CLI tool that analyzes npm `overrides` in package.json and determines which ones
 
 ## Start Here
 
-- [Architecture & Design](./docs/architecture.md) - Core algorithm, project structure, design principles
-- [Common Tasks](./docs/recipes.md) - How to add CLI options, modify the algorithm, add errors
-- [Coding Patterns](./docs/patterns.md) - Error handling, logging, child process execution
+- [How It Works](./docs/architecture.html) - Algorithm and safety checks
+- [Development](./docs/recipes.html) - Build, test, and maintain the project
+- [Code Patterns](./docs/patterns.html) - Errors, logging, and subprocesses
 
 ## Critical Warning
 

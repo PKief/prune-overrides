@@ -1,5 +1,7 @@
-import { removeOverride } from "../../src/fs/writePackageJson.js";
-import type { PackageJson } from "../../src/fs/readPackageJson.js";
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
+import { removeOverride } from "./writePackageJson.js";
+import type { PackageJson } from "./readPackageJson.js";
 
 describe("removeOverride", () => {
   describe("simple overrides", () => {
@@ -13,7 +15,7 @@ describe("removeOverride", () => {
       };
 
       const result = removeOverride(pkg, "lodash");
-      expect(result.overrides).toEqual({ react: "18.2.0" });
+      assert.deepStrictEqual(result.overrides, { react: "18.2.0" });
     });
 
     it("should remove overrides key when last override is removed", () => {
@@ -25,14 +27,14 @@ describe("removeOverride", () => {
       };
 
       const result = removeOverride(pkg, "lodash");
-      expect(result.overrides).toBeUndefined();
+      assert.strictEqual(result.overrides, undefined);
     });
 
     it("should return unchanged if no overrides exist", () => {
       const pkg: PackageJson = { name: "test" };
 
       const result = removeOverride(pkg, "lodash");
-      expect(result).toEqual({ name: "test" });
+      assert.deepStrictEqual(result, { name: "test" });
     });
   });
 
@@ -48,8 +50,10 @@ describe("removeOverride", () => {
         },
       };
 
-      const result = removeOverride(pkg, "@example/core", ["@example/eslint-plugin"]);
-      expect(result.overrides).toEqual({
+      const result = removeOverride(pkg, "@example/core", [
+        "@example/eslint-plugin",
+      ]);
+      assert.deepStrictEqual(result.overrides, {
         "@example/eslint-plugin": {
           "other-pkg": "1.0.0",
         },
@@ -67,8 +71,10 @@ describe("removeOverride", () => {
         },
       };
 
-      const result = removeOverride(pkg, "@example/core", ["@example/eslint-plugin"]);
-      expect(result.overrides).toEqual({ lodash: "4.17.21" });
+      const result = removeOverride(pkg, "@example/core", [
+        "@example/eslint-plugin",
+      ]);
+      assert.deepStrictEqual(result.overrides, { lodash: "4.17.21" });
     });
 
     it("should remove overrides key when last nested entry in last parent is removed", () => {
@@ -81,8 +87,10 @@ describe("removeOverride", () => {
         },
       };
 
-      const result = removeOverride(pkg, "@example/core", ["@example/eslint-plugin"]);
-      expect(result.overrides).toBeUndefined();
+      const result = removeOverride(pkg, "@example/core", [
+        "@example/eslint-plugin",
+      ]);
+      assert.strictEqual(result.overrides, undefined);
     });
 
     it("should handle deep nesting (2 levels)", () => {
@@ -99,7 +107,7 @@ describe("removeOverride", () => {
       };
 
       const result = removeOverride(pkg, "baz", ["foo", "bar"]);
-      expect(result.overrides).toEqual({
+      assert.deepStrictEqual(result.overrides, {
         foo: {
           bar: {
             qux: "2.0.0",
@@ -121,7 +129,7 @@ describe("removeOverride", () => {
       };
 
       const result = removeOverride(pkg, "baz", ["foo", "bar"]);
-      expect(result.overrides).toBeUndefined();
+      assert.strictEqual(result.overrides, undefined);
     });
 
     it("should handle non-existent path gracefully", () => {
@@ -133,7 +141,7 @@ describe("removeOverride", () => {
       };
 
       const result = removeOverride(pkg, "baz", ["nonexistent"]);
-      expect(result.overrides).toEqual({ lodash: "4.17.21" });
+      assert.deepStrictEqual(result.overrides, { lodash: "4.17.21" });
     });
 
     it("should handle non-existent leaf key gracefully", () => {
@@ -147,7 +155,7 @@ describe("removeOverride", () => {
       };
 
       const result = removeOverride(pkg, "nonexistent", ["foo"]);
-      expect(result.overrides).toEqual({
+      assert.deepStrictEqual(result.overrides, {
         foo: {
           bar: "1.0.0",
         },
@@ -166,7 +174,7 @@ describe("removeOverride", () => {
       };
 
       removeOverride(pkg, "bar", ["foo"]);
-      expect(pkg.overrides).toEqual({
+      assert.deepStrictEqual(pkg.overrides, {
         foo: {
           bar: "1.0.0",
           baz: "2.0.0",

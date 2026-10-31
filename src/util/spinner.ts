@@ -38,7 +38,6 @@ function createFallbackSpinner(initialText: string): SpinnerInstance {
         console.error(styleText("red", `✗ ${text}`));
       }
     },
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
     stop(): void {},
   };
 }

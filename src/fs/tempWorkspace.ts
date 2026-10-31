@@ -11,16 +11,21 @@ export interface TempWorkspace {
   cleanup: () => Promise<void>;
 }
 
-export async function createTempWorkspace(sourceDir: string): Promise<TempWorkspace> {
+export async function createTempWorkspace(
+  sourceDir: string,
+): Promise<TempWorkspace> {
   const workspacePath = join(tmpdir(), `${TEMP_DIR_PREFIX}${randomUUID()}`);
 
   async function reset(): Promise<void> {
     await mkdir(workspacePath, { recursive: true });
     await copyRequired(
       join(sourceDir, "package-lock.json"),
-      join(workspacePath, "package-lock.json")
+      join(workspacePath, "package-lock.json"),
     );
-    await copyOptional(join(sourceDir, ".npmrc"), join(workspacePath, ".npmrc"));
+    await copyOptional(
+      join(sourceDir, ".npmrc"),
+      join(workspacePath, ".npmrc"),
+    );
   }
 
   try {
@@ -33,16 +38,22 @@ export async function createTempWorkspace(sourceDir: string): Promise<TempWorksp
   } catch (error) {
     await cleanupWorkspace(workspacePath);
     throw new WorkspaceError(
-      `Failed to create temp workspace: ${error instanceof Error ? error.message : String(error)}`
+      `Failed to create temp workspace: ${error instanceof Error ? error.message : String(error)}`,
     );
   }
 }
 
-async function copyRequired(source: string, destination: string): Promise<void> {
+async function copyRequired(
+  source: string,
+  destination: string,
+): Promise<void> {
   await copyFile(source, destination, constants.COPYFILE_FICLONE);
 }
 
-async function copyOptional(source: string, destination: string): Promise<void> {
+async function copyOptional(
+  source: string,
+  destination: string,
+): Promise<void> {
   try {
     await copyFile(source, destination, constants.COPYFILE_FICLONE);
   } catch (error) {

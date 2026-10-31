@@ -30,33 +30,45 @@ export async function readLockfile(dir: string): Promise<Lockfile> {
       !("packages" in parsed) ||
       typeof parsed.packages !== "object"
     ) {
-      throw new LockfileError("Invalid lockfile format: missing 'packages' field");
+      throw new LockfileError(
+        "Invalid lockfile format: missing 'packages' field",
+      );
     }
 
     const lockfile = parsed as Lockfile;
-    if (!Number.isInteger(lockfile.lockfileVersion) || lockfile.lockfileVersion < 2) {
-      throw new LockfileError("Unsupported lockfile: lockfileVersion 2 or newer is required");
+    if (
+      !Number.isInteger(lockfile.lockfileVersion) ||
+      lockfile.lockfileVersion < 2
+    ) {
+      throw new LockfileError(
+        "Unsupported lockfile: lockfileVersion 2 or newer is required",
+      );
     }
     return lockfile;
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") {
       throw new LockfileError(
-        `package-lock.json not found at ${lockfilePath}. Run 'npm install' first.`
+        `package-lock.json not found at ${lockfilePath}. Run 'npm install' first.`,
       );
     }
     if (error instanceof SyntaxError) {
-      throw new LockfileError(`Invalid JSON in package-lock.json at ${lockfilePath}`);
+      throw new LockfileError(
+        `Invalid JSON in package-lock.json at ${lockfilePath}`,
+      );
     }
     if (error instanceof LockfileError) {
       throw error;
     }
     throw new LockfileError(
-      `Failed to read package-lock.json: ${error instanceof Error ? error.message : String(error)}`
+      `Failed to read package-lock.json: ${error instanceof Error ? error.message : String(error)}`,
     );
   }
 }
 
-export function getResolvedVersion(lockfile: Lockfile, packageName: string): string | null {
+export function getResolvedVersion(
+  lockfile: Lockfile,
+  packageName: string,
+): string | null {
   // Check root-level package first
   const rootKey = `node_modules/${packageName}`;
   const rootPackage = lockfile.packages[rootKey];
@@ -66,7 +78,10 @@ export function getResolvedVersion(lockfile: Lockfile, packageName: string): str
 
   // Search for nested installations
   for (const [key, pkg] of Object.entries(lockfile.packages)) {
-    if (key.endsWith(`/node_modules/${packageName}`) || key === `node_modules/${packageName}`) {
+    if (
+      key.endsWith(`/node_modules/${packageName}`) ||
+      key === `node_modules/${packageName}`
+    ) {
       if (pkg.version) {
         return pkg.version;
       }
@@ -76,7 +91,10 @@ export function getResolvedVersion(lockfile: Lockfile, packageName: string): str
   return null;
 }
 
-export function getAllResolvedVersions(lockfile: Lockfile, packageName: string): string[] {
+export function getAllResolvedVersions(
+  lockfile: Lockfile,
+  packageName: string,
+): string[] {
   const versions = new Set<string>();
 
   for (const [key, pkg] of Object.entries(lockfile.packages)) {
@@ -86,7 +104,8 @@ export function getAllResolvedVersions(lockfile: Lockfile, packageName: string):
     // - "node_modules/foo/node_modules/package-name"
     // - "node_modules/foo/node_modules/@scope/package-name"
     const isMatch =
-      key === `node_modules/${packageName}` || key.endsWith(`/node_modules/${packageName}`);
+      key === `node_modules/${packageName}` ||
+      key.endsWith(`/node_modules/${packageName}`);
 
     if (isMatch && pkg.version) {
       versions.add(pkg.version);

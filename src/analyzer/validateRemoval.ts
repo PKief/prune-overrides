@@ -19,11 +19,13 @@ export async function validateRemovalSet(
   baseline: Lockfile,
   rules: OverrideRule[],
   policy: SafetyPolicy,
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ): Promise<ValidationResult> {
-  if (rules.length === 0) return { safe: true, reason: "No overrides selected" };
+  if (rules.length === 0)
+    return { safe: true, reason: "No overrides selected" };
   let modified = packageJson;
-  for (const rule of rules) modified = removeOverride(modified, rule.key, rule.path);
+  for (const rule of rules)
+    modified = removeOverride(modified, rule.key, rule.path);
 
   const workspace = await createTempWorkspace(cwd);
   try {
@@ -35,10 +37,21 @@ export async function validateRemovalSet(
     }
     const candidate = await readLockfile(workspace.path);
     if (policy === "full-tree")
-      return compareLockfiles(baseline, candidate, rules[0]?.packageName ?? "", policy);
+      return compareLockfiles(
+        baseline,
+        candidate,
+        rules[0]?.packageName ?? "",
+        policy,
+      );
     for (const rule of rules) {
-      const result = compareLockfiles(baseline, candidate, rule.packageName, policy);
-      if (!result.safe) return { safe: false, reason: `${rule.packageName}: ${result.reason}` };
+      const result = compareLockfiles(
+        baseline,
+        candidate,
+        rule.packageName,
+        policy,
+      );
+      if (!result.safe)
+        return { safe: false, reason: `${rule.packageName}: ${result.reason}` };
     }
     return { safe: true, reason: "Combined removal validated" };
   } finally {
@@ -53,16 +66,38 @@ export async function selectSafeRemovalSet(
   baseline: Lockfile,
   candidates: OverrideRule[],
   policy: SafetyPolicy,
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ): Promise<{ safe: OverrideRule[]; rejected: OverrideRule[] }> {
-  if ((await validateRemovalSet(cwd, packageJson, baseline, candidates, policy, signal)).safe) {
+  if (
+    (
+      await validateRemovalSet(
+        cwd,
+        packageJson,
+        baseline,
+        candidates,
+        policy,
+        signal,
+      )
+    ).safe
+  ) {
     return { safe: candidates, rejected: [] };
   }
   const safe: OverrideRule[] = [];
   const rejected: OverrideRule[] = [];
   for (const candidate of candidates) {
     const proposed = [...safe, candidate];
-    if ((await validateRemovalSet(cwd, packageJson, baseline, proposed, policy, signal)).safe)
+    if (
+      (
+        await validateRemovalSet(
+          cwd,
+          packageJson,
+          baseline,
+          proposed,
+          policy,
+          signal,
+        )
+      ).safe
+    )
       safe.push(candidate);
     else rejected.push(candidate);
   }

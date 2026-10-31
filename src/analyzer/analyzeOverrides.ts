@@ -1,5 +1,9 @@
 import { availableParallelism } from "node:os";
-import type { AnalysisReport, AnalyzerOptions, OverrideAnalysisResult } from "./types.js";
+import type {
+  AnalysisReport,
+  AnalyzerOptions,
+  OverrideAnalysisResult,
+} from "./types.js";
 import { getOverrideDisplayName } from "./types.js";
 import { analyzeSingleOverride } from "./analyzeSingle.js";
 import { flattenOverrideRules, getRuleId } from "./overrideRule.js";
@@ -23,11 +27,16 @@ function hasRelativeDependency(packageJson: PackageJson): boolean {
     packageJson.optionalDependencies,
   ];
   return groups.some((group) =>
-    Object.values(group ?? {}).some((value) => /^(?:file:|link:|workspace:|\.\.?\/)/.test(value))
+    Object.values(group ?? {}).some((value) =>
+      /^(?:file:|link:|workspace:|\.\.?\/)/.test(value),
+    ),
   );
 }
 
-function unknownResult(rule: OverrideRule, reason: string): OverrideAnalysisResult {
+function unknownResult(
+  rule: OverrideRule,
+  reason: string,
+): OverrideAnalysisResult {
   return {
     name: rule.key,
     packageName: rule.packageName,
@@ -40,7 +49,9 @@ function unknownResult(rule: OverrideRule, reason: string): OverrideAnalysisResu
   };
 }
 
-export async function analyzeOverrides(options: AnalyzerOptions): Promise<AnalysisReport> {
+export async function analyzeOverrides(
+  options: AnalyzerOptions,
+): Promise<AnalysisReport> {
   const startTime = Date.now();
   const policy = options.policy ?? "no-downgrade";
   logger.configure({ verbose: options.verbose });
@@ -53,11 +64,14 @@ export async function analyzeOverrides(options: AnalyzerOptions): Promise<Analys
   const exclude = options.exclude;
   if (include?.length)
     rules = rules.filter(
-      (rule) => include.includes(rule.packageName) || include.includes(getRuleId(rule))
+      (rule) =>
+        include.includes(rule.packageName) || include.includes(getRuleId(rule)),
     );
   if (exclude?.length)
     rules = rules.filter(
-      (rule) => !exclude.includes(rule.packageName) && !exclude.includes(getRuleId(rule))
+      (rule) =>
+        !exclude.includes(rule.packageName) &&
+        !exclude.includes(getRuleId(rule)),
     );
 
   const platform = `${process.platform}-${process.arch}`;
@@ -74,7 +88,11 @@ export async function analyzeOverrides(options: AnalyzerOptions): Promise<Analys
 
   const concurrency = Math.max(
     1,
-    Math.min(options.concurrency ?? DEFAULT_CONCURRENCY, availableParallelism(), rules.length)
+    Math.min(
+      options.concurrency ?? DEFAULT_CONCURRENCY,
+      availableParallelism(),
+      rules.length,
+    ),
   );
 
   const checkedInLockfile = await readLockfile(options.cwd);
@@ -89,8 +107,8 @@ export async function analyzeOverrides(options: AnalyzerOptions): Promise<Analys
     const results = rules.map((rule) =>
       unknownResult(
         rule,
-        "Relative file/link/workspace dependencies are not safely reproducible in isolation"
-      )
+        "Relative file/link/workspace dependencies are not safely reproducible in isolation",
+      ),
     );
     return report(results, startTime, platform, npmVersion);
   }
@@ -99,20 +117,20 @@ export async function analyzeOverrides(options: AnalyzerOptions): Promise<Analys
     options.cwd,
     packageJson,
     checkedInLockfile,
-    options.signal
+    options.signal,
   );
   if (!baselineValidation.valid || !baselineValidation.lockfile) {
     return report(
       rules.map((rule) => unknownResult(rule, baselineValidation.reason)),
       startTime,
       platform,
-      npmVersion
+      npmVersion,
     );
   }
 
   const baselineLockfile = baselineValidation.lockfile;
   logger.info(
-    `Found ${String(rules.length)} override(s) to analyze (npm ${npmVersion ?? "unknown"}, policy: ${policy}, concurrency: ${String(concurrency)})`
+    `Found ${String(rules.length)} override(s) to analyze (npm ${npmVersion ?? "unknown"}, policy: ${policy}, concurrency: ${String(concurrency)})`,
   );
 
   // Fast path: one npm resolution proves that the whole selected set is safe.
@@ -122,7 +140,7 @@ export async function analyzeOverrides(options: AnalyzerOptions): Promise<Analys
     baselineLockfile,
     rules,
     policy,
-    options.signal
+    options.signal,
   );
   if (batch.safe) {
     const results = rules.map((rule) => ({
@@ -134,11 +152,20 @@ export async function analyzeOverrides(options: AnalyzerOptions): Promise<Analys
 
   const cache = new AnalysisCache(options.cwd);
   if (options.cache !== false) await cache.load();
-  const spinner = createSpinner(`Analyzing overrides (0/${String(rules.length)})`);
+  const spinner = createSpinner(
+    `Analyzing overrides (0/${String(rules.length)})`,
+  );
   spinner.start();
   let completed = 0;
   const results = await processInPool(rules, concurrency, async (rule) => {
-    const key = createCacheKey([packageJson, baselineLockfile, rule, policy, npmVersion, platform]);
+    const key = createCacheKey([
+      packageJson,
+      baselineLockfile,
+      rule,
+      policy,
+      npmVersion,
+      platform,
+    ]);
     const cached = options.cache === false ? undefined : cache.get(key);
     const result = cached
       ? { ...cached, cached: true }
@@ -154,29 +181,36 @@ export async function analyzeOverrides(options: AnalyzerOptions): Promise<Analys
           signal: options.signal,
         });
     if (!cached) cache.set(key, result);
-    spinner.update(`Analyzing overrides (${String(++completed)}/${String(rules.length)})`);
+    spinner.update(
+      `Analyzing overrides (${String(++completed)}/${String(rules.length)})`,
+    );
     return result;
   });
   spinner.stop();
   if (options.cache !== false) await cache.save();
 
-  const redundantRules = rules.filter((_, index) => results[index]?.verdict === "redundant");
+  const redundantRules = rules.filter(
+    (_, index) => results[index]?.verdict === "redundant",
+  );
   const selected = await selectSafeRemovalSet(
     options.cwd,
     packageJson,
     baselineLockfile,
     redundantRules,
     policy,
-    options.signal
+    options.signal,
   );
   const rejected = new Set(selected.rejected.map(getRuleId));
   for (const result of results) {
-    if (result.verdict === "redundant" && rejected.has(getOverrideDisplayName(result))) {
+    if (
+      result.verdict === "redundant" &&
+      rejected.has(getOverrideDisplayName(result))
+    ) {
       result.verdict = "required";
       result.reason = "Unsafe when removed together with other candidates";
     }
     logger.info(
-      `${getOverrideDisplayName(result)}: ${result.verdict.toUpperCase()} - ${result.reason}`
+      `${getOverrideDisplayName(result)}: ${result.verdict.toUpperCase()} - ${result.reason}`,
     );
   }
   return report(results, startTime, platform, npmVersion);
@@ -186,11 +220,12 @@ function report(
   results: OverrideAnalysisResult[],
   start: number,
   platform: string,
-  npmVersion?: string
+  npmVersion?: string,
 ): AnalysisReport {
   return {
     total: results.length,
-    redundant: results.filter((result) => result.verdict === "redundant").length,
+    redundant: results.filter((result) => result.verdict === "redundant")
+      .length,
     required: results.filter((result) => result.verdict === "required").length,
     unknown: results.filter((result) => result.verdict === "unknown").length,
     results,

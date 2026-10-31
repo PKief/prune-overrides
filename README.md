@@ -14,11 +14,11 @@ npm overrides are useful for fixing security vulnerabilities or compatibility is
 
 ## Features
 
-- **Safe by default** - dry-run mode shows what would change without modifying files
+- **Safe by default** - scanning shows results without modifying project files
 - **Full tree analysis** - checks ALL versions across the entire dependency tree, not just root
 - **No false positives** - only marks an override as redundant if removing it won't introduce ANY older versions
 - **Fast** - uses `--package-lock-only` to avoid downloading packages
-- **CI-friendly** - JSON output and meaningful exit codes
+- **Simple CLI** - scan, fix, help, and version, with meaningful exit codes
 
 ## Installation
 
@@ -34,83 +34,38 @@ npx prune-overrides
 
 ## Usage
 
+Run in the directory containing your project's package.json and package-lock.json:
+
 ```bash
-# Analyze overrides (dry-run by default)
+# Scan all overrides and show results without changing project files
 prune-overrides
 
-# Remove redundant overrides
+# Remove safely redundant overrides and regenerate package-lock.json
 prune-overrides --fix
 
-# Output results as JSON
-prune-overrides --json
-
-# Analyze specific packages only
-prune-overrides --include lodash minimist
-
-# Exclude specific packages
-prune-overrides --exclude lodash
-
-# Analyze a different directory
-prune-overrides --cwd /path/to/project
-
-# Verbose output (shows version details)
-prune-overrides --verbose
-
-# no-downgrade is the default; exact and full-tree are stricter alternatives
-prune-overrides --policy full-tree
-
-# Disable the content-addressed cache
-prune-overrides --no-cache
+# Show help or version
+prune-overrides --help
+prune-overrides --version
 ```
 
-## Example Output
-
-```
-Analyzing npm overrides...
-
-Found 4 override(s) to analyze
-
-Analyzing: @opentelemetry/semantic-conventions
-  @opentelemetry/semantic-conventions: REQUIRED - Would introduce older version(s): 1.28.0, 1.30.0
-Analyzing: pino
-  pino: REQUIRED - Would introduce older version(s): 9.6.0
-Analyzing: qs
-✓ qs: REDUNDANT - Same version(s) resolve with and without override
-
-Analysis Summary
-────────────────────────────────────────
-  Total overrides:    4
-  Redundant:          1
-  Required:           3
-  Duration:           4.7s
-
-Redundant overrides that can be removed:
-
-  • qs
-    Override: 6.14.1
-    Reason:   Same version(s) resolve with and without override
-
-Run with --fix to automatically remove 1 redundant override(s).
-```
+These are the only supported CLI options. Scanning uses isolated temporary workspaces
+and does not write a project cache. Fixing revalidates the combined removal set
+before updating files and rolls back if lockfile regeneration fails.
 
 ## Options
 
-| Option                    | Description                                  |
-| ------------------------- | -------------------------------------------- |
-| `--dry-run`               | Analyze without making changes (default)     |
-| `--fix`                   | Remove redundant overrides from package.json |
-| `--json`                  | Output results as JSON                       |
-| `--include <packages...>` | Only analyze specific packages               |
-| `--exclude <packages...>` | Exclude specific packages from analysis      |
-| `--cwd <path>`            | Working directory                            |
-| `-v, --verbose`           | Enable verbose output                        |
+| Option      | Description                                                    |
+| ----------- | -------------------------------------------------------------- |
+| `--fix`     | Remove safely redundant overrides and update package-lock.json |
+| `--help`    | Display help                                                   |
+| `--version` | Output version number                                          |
 
 ## Exit Codes
 
 | Code | Meaning                                              |
 | ---- | ---------------------------------------------------- |
 | 0    | No redundant overrides (or all removed with `--fix`) |
-| 1    | Redundant overrides found (dry-run mode)             |
+| 1    | Redundant overrides found (scan only)                |
 | 2    | Error                                                |
 
 ## How It Works
@@ -172,6 +127,14 @@ for (const result of report.results) {
 - **Local/workspace dependencies** - These are reported as `unknown` because isolated resolution may change relative paths
 - **Platform-specific** - Results apply to the OS and architecture shown in the report
 - **No CVE checking** - Does not verify if versions have known vulnerabilities
+
+## Development
+
+Use Node.js 26+ (`nvm use`) and npm. `npm ci` and npm scripts enforce this with `devEngines`. Tests run TypeScript directly; coverage still uses Node’s experimental coverage flag.
+
+## Documentation
+
+Open [docs/index.html](./docs/index.html) locally, or publish `/docs` with GitHub Pages. No build step needed.
 
 ## License
 

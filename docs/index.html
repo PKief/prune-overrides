@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Find and safely remove unnecessary npm overrides. A simple CLI with read-only scanning and validated fixes.">
+  <title>prune-overrides — Keep only the overrides you need</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header>
+    <a class="brand" href="index.html">prune-overrides</a>
+    <nav aria-label="Main navigation">
+      <a href="index.html" aria-current="page">Start</a>
+      <a href="architecture.html">How it works</a>
+      <a href="recipes.html">Development</a>
+      <a href="patterns.html">Code patterns</a>
+    </nav>
+  </header>
+  <main id="main">
+    <p class="eyebrow">Small CLI. Safer dependencies.</p>
+    <h1>Keep only the overrides you need.</h1>
+    <p class="lead">Find npm overrides that no longer change your dependencies. Scan first. Remove them when it’s safe.</p>
+    <section aria-labelledby="start">
+      <h2 id="start">Get started</h2>
+      <p>Run inside your project, next to <code>package.json</code> and <code>package-lock.json</code>.</p>
+      <pre><code># Scan without changing project files
+npx prune-overrides
+
+# Remove safely redundant overrides
+npx prune-overrides --fix</code></pre>
+      <p>Prefer a global install? Run <code>npm install -g prune-overrides</code>, then use <code>prune-overrides</code>.</p>
+    </section>
+    <div class="grid">
+      <section class="card">
+        <h2>Scan</h2>
+        <p>Checks every override in temporary workspaces. Shows results without changing project files or writing a project cache.</p>
+      </section>
+      <section class="card">
+        <h2>Fix</h2>
+        <p>Rechecks the removal set, updates your package and lockfile, and rolls back if lockfile generation fails.</p>
+      </section>
+      <section class="card">
+        <h2>Check the whole tree</h2>
+        <p>Checks all versions of the target package, including nested dependencies. Older versions mean the override stays.</p>
+      </section>
+    </div>
+    <section aria-labelledby="commands">
+      <h2 id="commands">Only four commands</h2>
+      <dl>
+        <dt><code>prune-overrides</code></dt><dd>Scan and show results.</dd>
+        <dt><code>prune-overrides --fix</code></dt><dd>Remove safely redundant overrides.</dd>
+        <dt><code>prune-overrides --help</code></dt><dd>Show help.</dd>
+        <dt><code>prune-overrides --version</code></dt><dd>Show the installed version.</dd>
+      </dl>
+    </section>
+    <section aria-labelledby="results">
+      <h2 id="results">Read the results</h2>
+      <ul>
+        <li><strong>Redundant:</strong> safe to remove under the dependency checks.</li>
+        <li><strong>Required:</strong> removing it introduces older versions or a dependency conflict.</li>
+        <li><strong>Unknown:</strong> the check could not finish safely. The override stays.</li>
+      </ul>
+      <p>Exit codes: <strong>0</strong> means no redundant overrides remain; <strong>1</strong> means a scan found some; <strong>2</strong> means an error.</p>
+    </section>
+    <section aria-labelledby="limits">
+      <h2 id="limits">Before you run</h2>
+      <p>Use Node.js 22.15+ and npm, with a version 2 or newer lockfile. Results apply to your current OS, architecture, and npm version.</p>
+      <p class="note">This checks dependency resolution, not security advisories. Local and workspace dependencies may be reported as unknown. Yarn and pnpm are not supported.</p>
+    </section>
+  </main>
+  <footer><a href="https://github.com/PKief/prune-overrides">Source on GitHub</a> · MIT license</footer>
+</body>
+</html>

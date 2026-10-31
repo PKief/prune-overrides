@@ -24,13 +24,17 @@ export async function readPackageJson(dir: string): Promise<PackageJson> {
     return parsed;
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") {
-      throw new PackageJsonError(`package.json not found at ${packageJsonPath}`);
+      throw new PackageJsonError(
+        `package.json not found at ${packageJsonPath}`,
+      );
     }
     if (error instanceof SyntaxError) {
-      throw new PackageJsonError(`Invalid JSON in package.json at ${packageJsonPath}`);
+      throw new PackageJsonError(
+        `Invalid JSON in package.json at ${packageJsonPath}`,
+      );
     }
     throw new PackageJsonError(
-      `Failed to read package.json: ${error instanceof Error ? error.message : String(error)}`
+      `Failed to read package.json: ${error instanceof Error ? error.message : String(error)}`,
     );
   }
 }

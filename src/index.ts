@@ -14,7 +14,11 @@ export type { AnalyzeSingleOptions } from "./analyzer/analyzeSingle.js";
 
 export { readPackageJson, getOverrideKeys } from "./fs/readPackageJson.js";
 export type { PackageJson } from "./fs/readPackageJson.js";
-export { readLockfile, getResolvedVersion, getAllResolvedVersions } from "./fs/readLockfile.js";
+export {
+  readLockfile,
+  getResolvedVersion,
+  getAllResolvedVersions,
+} from "./fs/readLockfile.js";
 export type { Lockfile, LockfilePackage } from "./fs/readLockfile.js";
 export { writePackageJson, removeOverride } from "./fs/writePackageJson.js";
 export { createTempWorkspace } from "./fs/tempWorkspace.js";
@@ -23,7 +27,11 @@ export type { TempWorkspace } from "./fs/tempWorkspace.js";
 export { npmInstall, checkNpmAvailable, getNpmVersion } from "./npm/install.js";
 export type { InstallOptions } from "./npm/install.js";
 export { npmExplain, hasDependents } from "./npm/explain.js";
-export type { NpmExplainNode, NpmExplainDependent, ExplainOptions } from "./npm/explain.js";
+export type {
+  NpmExplainNode,
+  NpmExplainDependent,
+  ExplainOptions,
+} from "./npm/explain.js";
 export { npmLs, extractVersionsFromLs } from "./npm/ls.js";
 export type { NpmLsDependency, NpmLsResult, LsOptions } from "./npm/ls.js";
 
@@ -34,14 +42,22 @@ export {
   overrideAffectsResolution,
   describeChange,
 } from "./compare/compareResolution.js";
-export { diffLockfiles, filterDiffsByPackage, hasChangesForPackage } from "./compare/diffTree.js";
+export {
+  diffLockfiles,
+  filterDiffsByPackage,
+  hasChangesForPackage,
+} from "./compare/diffTree.js";
 export type { DiffEntry } from "./compare/diffTree.js";
 export {
   compareLockfiles,
   comparePackageResolutions,
   indexResolutions,
 } from "./compare/resolutions.js";
-export type { Resolution, SafetyResult, SafetyPolicy } from "./compare/resolutions.js";
+export type {
+  Resolution,
+  SafetyResult,
+  SafetyPolicy,
+} from "./compare/resolutions.js";
 export { reportToConsole } from "./report/consoleReporter.js";
 
 export type {

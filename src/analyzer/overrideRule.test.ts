@@ -1,7 +1,41 @@
-import { flattenOverrideRules } from "../../src/analyzer/overrideRule.js";
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
+import {
+  flattenOverrideRules,
+  parseOverridePackageName,
+} from "./overrideRule.js";
 
-const flattenOverrides = (overrides: Parameters<typeof flattenOverrideRules>[0]) =>
-  flattenOverrideRules(overrides).map(({ key, value, path }) => ({ key, value, path }));
+describe("override rules", () => {
+  for (const [input, expected] of [
+    ["foo", "foo"],
+    ["foo@^2", "foo"],
+    ["@scope/pkg", "@scope/pkg"],
+    ["@scope/pkg@^2", "@scope/pkg"],
+    [".", null],
+  ] as const) {
+    it(`parses ${input}`, () =>
+      assert.strictEqual(parseOverridePackageName(input), expected));
+  }
+
+  it("handles npm's dot key", () => {
+    assert.deepStrictEqual(
+      flattenOverrideRules({ "foo@^2": { ".": "2.1.0", bar: "3.0.0" } }),
+      [
+        { key: ".", packageName: "foo", value: "2.1.0", path: ["foo@^2"] },
+        { key: "bar", packageName: "bar", value: "3.0.0", path: ["foo@^2"] },
+      ],
+    );
+  });
+});
+
+const flattenOverrides = (
+  overrides: Parameters<typeof flattenOverrideRules>[0],
+) =>
+  flattenOverrideRules(overrides).map(({ key, value, path }) => ({
+    key,
+    value,
+    path,
+  }));
 
 describe("flattenOverrideRules", () => {
   it("should flatten simple string overrides", () => {
@@ -11,7 +45,7 @@ describe("flattenOverrideRules", () => {
     };
 
     const result = flattenOverrides(overrides);
-    expect(result).toEqual([
+    assert.deepStrictEqual(result, [
       { key: "lodash", value: "4.17.21", path: [] },
       { key: "react", value: "18.2.0", path: [] },
     ]);
@@ -25,8 +59,12 @@ describe("flattenOverrideRules", () => {
     };
 
     const result = flattenOverrides(overrides);
-    expect(result).toEqual([
-      { key: "@example/core", value: "$@example/core", path: ["@example/eslint-plugin"] },
+    assert.deepStrictEqual(result, [
+      {
+        key: "@example/core",
+        value: "$@example/core",
+        path: ["@example/eslint-plugin"],
+      },
     ]);
   });
 
@@ -40,10 +78,14 @@ describe("flattenOverrideRules", () => {
     };
 
     const result = flattenOverrides(overrides);
-    expect(result).toEqual([
+    assert.deepStrictEqual(result, [
       { key: "lodash", value: "4.17.23", path: [] },
       { key: "minimatch", value: "10.2.4", path: [] },
-      { key: "@example/core", value: "$@example/core", path: ["@example/eslint-plugin"] },
+      {
+        key: "@example/core",
+        value: "$@example/core",
+        path: ["@example/eslint-plugin"],
+      },
     ]);
   });
 
@@ -57,7 +99,9 @@ describe("flattenOverrideRules", () => {
     };
 
     const result = flattenOverrides(overrides);
-    expect(result).toEqual([{ key: "baz", value: "1.0.0", path: ["foo", "bar"] }]);
+    assert.deepStrictEqual(result, [
+      { key: "baz", value: "1.0.0", path: ["foo", "bar"] },
+    ]);
   });
 
   it("should flatten multiple entries within a nested override", () => {
@@ -69,15 +113,19 @@ describe("flattenOverrideRules", () => {
     };
 
     const result = flattenOverrides(overrides);
-    expect(result).toEqual([
-      { key: "@example/core", value: "$@example/core", path: ["@example/eslint-plugin"] },
+    assert.deepStrictEqual(result, [
+      {
+        key: "@example/core",
+        value: "$@example/core",
+        path: ["@example/eslint-plugin"],
+      },
       { key: "other-pkg", value: "2.0.0", path: ["@example/eslint-plugin"] },
     ]);
   });
 
   it("should handle empty overrides", () => {
     const result = flattenOverrides({});
-    expect(result).toEqual([]);
+    assert.deepStrictEqual(result, []);
   });
 
   it("should handle the user's exact example", () => {
@@ -93,8 +141,8 @@ describe("flattenOverrideRules", () => {
     };
 
     const result = flattenOverrides(overrides);
-    expect(result).toHaveLength(6);
-    expect(result[5]).toEqual({
+    assert.strictEqual(result.length, 6);
+    assert.deepStrictEqual(result[5], {
       key: "@example/core",
       value: "$@example/core",
       path: ["@example/eslint-plugin"],

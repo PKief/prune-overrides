@@ -13,7 +13,13 @@ export class AnalysisCache {
   private data: CacheFile = { version: 2, entries: {} };
 
   constructor(cwd: string) {
-    this.path = join(cwd, "node_modules", ".cache", "prune-overrides", "results.json");
+    this.path = join(
+      cwd,
+      "node_modules",
+      ".cache",
+      "prune-overrides",
+      "results.json",
+    );
   }
 
   async load(): Promise<void> {

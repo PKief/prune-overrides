@@ -1,6 +1,6 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import type { CliOptions } from "./options.js";
+import { printHelp, printVersion, type CliOptions } from "./options.js";
 import { analyzeOverrides } from "../analyzer/analyzeOverrides.js";
 import type { OverrideAnalysisResult } from "../analyzer/types.js";
 import { getOverrideDisplayName } from "../analyzer/types.js";
@@ -9,7 +9,6 @@ import { readPackageJson } from "../fs/readPackageJson.js";
 import { readLockfile } from "../fs/readLockfile.js";
 import { validateRemovalSet } from "../analyzer/validateRemoval.js";
 import { validateBaseline } from "../analyzer/validateBaseline.js";
-import { PruneOverridesError as ValidationError } from "../util/errors.js";
 import { writePackageJson, removeOverride } from "../fs/writePackageJson.js";
 import { npmInstall } from "../npm/install.js";
 import { logger } from "../util/logger.js";
@@ -18,23 +17,23 @@ import { ExitCode } from "../config/constants.js";
 import { PruneOverridesError } from "../util/errors.js";
 
 export async function run(options: CliOptions): Promise<number> {
-  logger.configure({ verbose: options.verbose });
+  if (options.help) {
+    printHelp();
+    return ExitCode.SUCCESS;
+  }
+  if (options.version) {
+    printVersion();
+    return ExitCode.SUCCESS;
+  }
 
+  const cwd = process.cwd();
   try {
-    const report = await analyzeOverrides({
-      cwd: options.cwd,
-      include: options.include.length > 0 ? options.include : undefined,
-      exclude: options.exclude.length > 0 ? options.exclude : undefined,
-      verbose: options.verbose,
-      concurrency: options.concurrency,
-      policy: options.policy,
-      cache: options.cache,
-    });
+    const report = await analyzeOverrides({ cwd, cache: false });
 
     reportToConsole(report);
 
     if (options.fix && report.redundant > 0) {
-      await applyFixes(options.cwd, report.results, options.policy);
+      await applyFixes(cwd, report.results);
     }
 
     if (report.redundant > 0 && !options.fix) {
@@ -57,7 +56,6 @@ export async function run(options: CliOptions): Promise<number> {
 async function applyFixes(
   cwd: string,
   results: OverrideAnalysisResult[],
-  policy: CliOptions["policy"]
 ): Promise<void> {
   const redundantOverrides = results.filter((r) => r.verdict === "redundant");
 
@@ -70,9 +68,16 @@ async function applyFixes(
 
   let packageJson = await readPackageJson(cwd);
   const checkedInLockfile = await readLockfile(cwd);
-  const reproduced = await validateBaseline(cwd, packageJson, checkedInLockfile);
+  const reproduced = await validateBaseline(
+    cwd,
+    packageJson,
+    checkedInLockfile,
+  );
   if (!reproduced.valid || !reproduced.lockfile) {
-    throw new ValidationError(`Refusing to apply fixes: ${reproduced.reason}`, "VALIDATION_ERROR");
+    throw new PruneOverridesError(
+      `Refusing to apply fixes: ${reproduced.reason}`,
+      "VALIDATION_ERROR",
+    );
   }
   const rules = redundantOverrides.map((result) => ({
     key: result.name,
@@ -80,18 +85,28 @@ async function applyFixes(
     value: result.overrideValue,
     path: result.overridePath ?? [],
   }));
-  const validation = await validateRemovalSet(cwd, packageJson, reproduced.lockfile, rules, policy);
+  const validation = await validateRemovalSet(
+    cwd,
+    packageJson,
+    reproduced.lockfile,
+    rules,
+    "no-downgrade",
+  );
   if (!validation.safe) {
-    throw new ValidationError(
+    throw new PruneOverridesError(
       `Refusing to apply unvalidated fixes: ${validation.reason}`,
-      "VALIDATION_ERROR"
+      "VALIDATION_ERROR",
     );
   }
 
   logger.info("Applying fixes...");
 
   for (const override of redundantOverrides) {
-    packageJson = removeOverride(packageJson, override.name, override.overridePath);
+    packageJson = removeOverride(
+      packageJson,
+      override.name,
+      override.overridePath,
+    );
     logger.success(`Removed override: ${getOverrideDisplayName(override)}`);
   }
 
@@ -115,5 +130,7 @@ async function applyFixes(
   }
 
   logger.newline();
-  logger.success(`Removed ${String(redundantOverrides.length)} redundant override(s)`);
+  logger.success(
+    `Removed ${String(redundantOverrides.length)} redundant override(s)`,
+  );
 }

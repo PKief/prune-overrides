@@ -1,15 +1,17 @@
-import { processInPool } from "../../src/util/processInPool.js";
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
+import { processInPool } from "./processInPool.js";
 
 describe("processInPool", () => {
   it("should process all items and preserve order", async () => {
     const items = [1, 2, 3, 4, 5];
     const results = await processInPool(items, 3, async (n) => n * 2);
-    expect(results).toEqual([2, 4, 6, 8, 10]);
+    assert.deepStrictEqual(results, [2, 4, 6, 8, 10]);
   });
 
   it("should handle empty input", async () => {
     const results = await processInPool([], 3, async (n: number) => n);
-    expect(results).toEqual([]);
+    assert.deepStrictEqual(results, []);
   });
 
   it("should work with concurrency of 1 (sequential)", async () => {
@@ -19,7 +21,7 @@ describe("processInPool", () => {
       order.push(n);
       return n;
     });
-    expect(order).toEqual([1, 2, 3]);
+    assert.deepStrictEqual(order, [1, 2, 3]);
   });
 
   it("should limit concurrency", async () => {
@@ -36,22 +38,23 @@ describe("processInPool", () => {
       return n;
     });
 
-    expect(maxActive).toBeLessThanOrEqual(concurrency);
+    assert.ok(maxActive <= concurrency);
   });
 
   it("should handle concurrency larger than item count", async () => {
     const items = [1, 2];
     const results = await processInPool(items, 10, async (n) => n + 1);
-    expect(results).toEqual([2, 3]);
+    assert.deepStrictEqual(results, [2, 3]);
   });
 
   it("should propagate errors", async () => {
     const items = [1, 2, 3];
-    await expect(
+    await assert.rejects(
       processInPool(items, 2, async (n) => {
         if (n === 2) throw new Error("fail");
         return n;
-      })
-    ).rejects.toThrow("fail");
+      }),
+      /fail/,
+    );
   });
 });

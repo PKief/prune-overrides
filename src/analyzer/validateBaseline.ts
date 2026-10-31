@@ -10,7 +10,7 @@ export async function validateBaseline(
   cwd: string,
   packageJson: PackageJson,
   baseline: Lockfile,
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ): Promise<{ valid: boolean; reason: string; lockfile?: Lockfile }> {
   const workspace = await createTempWorkspace(cwd);
   try {
@@ -18,12 +18,19 @@ export async function validateBaseline(
     try {
       await npmInstall({ cwd: workspace.path, signal });
     } catch {
-      return { valid: false, reason: "Baseline package-lock.json cannot be reproduced by npm" };
+      return {
+        valid: false,
+        reason: "Baseline package-lock.json cannot be reproduced by npm",
+      };
     }
     const regenerated = await readLockfile(workspace.path);
     const result = compareLockfiles(baseline, regenerated, "", "full-tree");
     return result.safe
-      ? { valid: true, reason: "Baseline lockfile validated", lockfile: regenerated }
+      ? {
+          valid: true,
+          reason: "Baseline lockfile validated",
+          lockfile: regenerated,
+        }
       : {
           valid: false,
           reason: `Baseline lockfile is stale or environment-dependent: ${result.reason}`,

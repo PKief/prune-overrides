@@ -5,9 +5,6 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node: [22.22.2, 24.15.0]
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -15,7 +12,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: ${{ matrix.node }}
+          node-version-file: .nvmrc
           cache: npm
 
       - name: Install dependencies
@@ -23,9 +20,6 @@ jobs:
 
       - name: Build
         run: npm run build
-
-      - name: Lint
-        run: npm run lint
 
       - name: Type check
         run: npm run typecheck

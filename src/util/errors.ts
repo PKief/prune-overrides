@@ -1,9 +1,9 @@
 export class PruneOverridesError extends Error {
-  constructor(
-    message: string,
-    public readonly code: string
-  ) {
+  public readonly code: string;
+
+  constructor(message: string, code: string) {
     super(message);
+    this.code = code;
     this.name = "PruneOverridesError";
     Error.captureStackTrace(this, this.constructor);
   }
@@ -24,12 +24,13 @@ export class LockfileError extends PruneOverridesError {
 }
 
 export class NpmError extends PruneOverridesError {
-  constructor(
-    message: string,
-    public readonly command: string,
-    public readonly stderr?: string
-  ) {
+  public readonly command: string;
+  public readonly stderr?: string;
+
+  constructor(message: string, command: string, stderr?: string) {
     super(message, "NPM_ERROR");
+    this.command = command;
+    this.stderr = stderr;
     this.name = "NpmError";
   }
 }

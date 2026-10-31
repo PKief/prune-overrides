@@ -1,16 +1,18 @@
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
 import {
   type OverrideVerdict,
   type OverrideAnalysisResult,
   getOverrideDisplayName,
-} from "../../src/analyzer/types.js";
+} from "./types.js";
 
 describe("analyzer types", () => {
   it("should allow valid verdict values", () => {
     const redundant: OverrideVerdict = "redundant";
     const required: OverrideVerdict = "required";
 
-    expect(redundant).toBe("redundant");
-    expect(required).toBe("required");
+    assert.strictEqual(redundant, "redundant");
+    assert.strictEqual(required, "required");
   });
 
   it("should allow valid analysis result structure", () => {
@@ -23,8 +25,8 @@ describe("analyzer types", () => {
       reason: "Version changes without override",
     };
 
-    expect(result.name).toBe("lodash");
-    expect(result.verdict).toBe("required");
+    assert.strictEqual(result.name, "lodash");
+    assert.strictEqual(result.verdict, "required");
   });
 
   it("should allow null before/after versions", () => {
@@ -37,8 +39,8 @@ describe("analyzer types", () => {
       reason: "Package not in dependency tree",
     };
 
-    expect(result.before).toBeNull();
-    expect(result.after).toBeNull();
+    assert.strictEqual(result.before, null);
+    assert.strictEqual(result.after, null);
   });
 
   it("should allow overridePath for nested overrides", () => {
@@ -52,7 +54,7 @@ describe("analyzer types", () => {
       reason: "Would introduce older version(s)",
     };
 
-    expect(result.overridePath).toEqual(["@example/eslint-plugin"]);
+    assert.deepStrictEqual(result.overridePath, ["@example/eslint-plugin"]);
   });
 
   it("should allow deep overridePath", () => {
@@ -66,7 +68,7 @@ describe("analyzer types", () => {
       reason: "Package not found in dependency tree",
     };
 
-    expect(result.overridePath).toEqual(["foo", "bar"]);
+    assert.deepStrictEqual(result.overridePath, ["foo", "bar"]);
   });
 });
 
@@ -81,7 +83,7 @@ describe("getOverrideDisplayName", () => {
       reason: "test",
     };
 
-    expect(getOverrideDisplayName(result)).toBe("lodash");
+    assert.strictEqual(getOverrideDisplayName(result), "lodash");
   });
 
   it("should return name when overridePath is undefined", () => {
@@ -95,7 +97,7 @@ describe("getOverrideDisplayName", () => {
       reason: "test",
     };
 
-    expect(getOverrideDisplayName(result)).toBe("lodash");
+    assert.strictEqual(getOverrideDisplayName(result), "lodash");
   });
 
   it("should return name when overridePath is empty", () => {
@@ -109,7 +111,7 @@ describe("getOverrideDisplayName", () => {
       reason: "test",
     };
 
-    expect(getOverrideDisplayName(result)).toBe("lodash");
+    assert.strictEqual(getOverrideDisplayName(result), "lodash");
   });
 
   it("should return parent > child for single-level nesting", () => {
@@ -123,7 +125,10 @@ describe("getOverrideDisplayName", () => {
       reason: "test",
     };
 
-    expect(getOverrideDisplayName(result)).toBe("@example/eslint-plugin > @example/core");
+    assert.strictEqual(
+      getOverrideDisplayName(result),
+      "@example/eslint-plugin > @example/core",
+    );
   });
 
   it("should return full path for deep nesting", () => {
@@ -137,6 +142,6 @@ describe("getOverrideDisplayName", () => {
       reason: "test",
     };
 
-    expect(getOverrideDisplayName(result)).toBe("foo > bar > baz");
+    assert.strictEqual(getOverrideDisplayName(result), "foo > bar > baz");
   });
 });

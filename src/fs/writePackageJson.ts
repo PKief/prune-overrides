@@ -3,7 +3,10 @@ import { join } from "node:path";
 import type { PackageJson } from "./readPackageJson.js";
 import { PackageJsonError } from "../util/errors.js";
 
-export async function writePackageJson(dir: string, packageJson: PackageJson): Promise<void> {
+export async function writePackageJson(
+  dir: string,
+  packageJson: PackageJson,
+): Promise<void> {
   const packageJsonPath = join(dir, "package.json");
 
   try {
@@ -25,7 +28,7 @@ export async function writePackageJson(dir: string, packageJson: PackageJson): P
     await writeFile(packageJsonPath, content, "utf-8");
   } catch (error) {
     throw new PackageJsonError(
-      `Failed to write package.json: ${error instanceof Error ? error.message : String(error)}`
+      `Failed to write package.json: ${error instanceof Error ? error.message : String(error)}`,
     );
   }
 }
@@ -37,7 +40,7 @@ export async function writePackageJson(dir: string, packageJson: PackageJson): P
 export function removeOverride(
   packageJson: PackageJson,
   overrideKey: string,
-  overridePath?: string[]
+  overridePath?: string[],
 ): PackageJson {
   if (!packageJson.overrides) {
     return packageJson;
@@ -59,7 +62,11 @@ export function removeOverride(
   }
 
   // Nested override removal — walk the path and remove the leaf
-  const newOverrides = removeNestedKey(packageJson.overrides, overridePath, overrideKey);
+  const newOverrides = removeNestedKey(
+    packageJson.overrides,
+    overridePath,
+    overrideKey,
+  );
 
   if (Object.keys(newOverrides).length === 0) {
     const { overrides: __, ...rest } = packageJson;
@@ -75,25 +82,32 @@ export function removeOverride(
 function removeNestedKey(
   obj: Record<string, unknown>,
   path: string[],
-  leafKey: string
+  leafKey: string,
 ): Record<string, unknown> {
   if (path.length === 0) {
     return obj;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const head = path[0]!;
   const tail = path.slice(1);
   const current = obj[head];
 
-  if (current === undefined || typeof current !== "object" || current === null) {
+  if (
+    current === undefined ||
+    typeof current !== "object" ||
+    current === null
+  ) {
     return obj;
   }
 
   let updated: Record<string, unknown>;
   if (tail.length > 0) {
     // More path segments to traverse
-    updated = removeNestedKey(current as Record<string, unknown>, tail, leafKey);
+    updated = removeNestedKey(
+      current as Record<string, unknown>,
+      tail,
+      leafKey,
+    );
   } else {
     // We're at the parent of the leaf — remove the leaf key
     const { [leafKey]: _, ...rest } = current as Record<string, unknown>;

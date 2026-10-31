@@ -18,7 +18,7 @@ export interface ExecOptions {
 export async function execFile(
   file: string,
   args: string[] = [],
-  options: ExecOptions = {}
+  options: ExecOptions = {},
 ): Promise<ExecResult> {
   const { cwd, env, timeout = 120000, signal } = options;
   const result = await execFileAsync(file, args, {
@@ -34,7 +34,7 @@ export async function execFile(
 export async function execFileSafe(
   file: string,
   args: string[] = [],
-  options: ExecOptions = {}
+  options: ExecOptions = {},
 ): Promise<ExecResult & { success: boolean }> {
   try {
     return { ...(await execFile(file, args, options)), success: true };

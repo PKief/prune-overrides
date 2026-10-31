@@ -19,7 +19,12 @@ export async function npmInstall(options: InstallOptions): Promise<void> {
     timeout = DEFAULT_NPM_TIMEOUT,
     signal,
   } = options;
-  const args: string[] = ["install", "--no-audit", "--no-fund", "--prefer-offline"];
+  const args: string[] = [
+    "install",
+    "--no-audit",
+    "--no-fund",
+    "--prefer-offline",
+  ];
   if (packageLockOnly) args.push("--package-lock-only");
   if (ignoreScripts) args.push("--ignore-scripts");
   logger.debug(`Running: npm ${args.join(" ")} in ${cwd}`);
@@ -28,7 +33,7 @@ export async function npmInstall(options: InstallOptions): Promise<void> {
     throw new NpmError(
       `npm install failed: ${result.stderr}`,
       `npm ${args.join(" ")}`,
-      result.stderr
+      result.stderr,
     );
 }
 

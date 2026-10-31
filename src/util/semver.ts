@@ -19,7 +19,9 @@ export function isOlderVersion(a: string, b: string): boolean {
 export function findMinVersion(versions: string[]): string | null {
   if (versions.length === 0) return null;
 
-  const validVersions = versions.filter((v) => semver.valid(v, { loose: true }));
+  const validVersions = versions.filter((v) =>
+    semver.valid(v, { loose: true }),
+  );
 
   if (validVersions.length > 0) {
     const min = semver.minSatisfying(validVersions, ">=0.0.0-0", {
@@ -43,7 +45,9 @@ export function findMinVersion(versions: string[]): string | null {
 export function findMaxVersion(versions: string[]): string | null {
   if (versions.length === 0) return null;
 
-  const validVersions = versions.filter((v) => semver.valid(v, { loose: true }));
+  const validVersions = versions.filter((v) =>
+    semver.valid(v, { loose: true }),
+  );
 
   if (validVersions.length > 0) {
     const max = semver.maxSatisfying(validVersions, ">=0.0.0-0", {
@@ -64,7 +68,10 @@ export function findMaxVersion(versions: string[]): string | null {
   return max;
 }
 
-export function wouldIntroduceOlderVersions(before: string[], after: string[]): boolean {
+export function wouldIntroduceOlderVersions(
+  before: string[],
+  after: string[],
+): boolean {
   if (before.length === 0 || after.length === 0) {
     return false;
   }
@@ -81,6 +88,9 @@ export function wouldIntroduceOlderVersions(before: string[], after: string[]): 
   return false;
 }
 
-export function getOlderVersions(versions: string[], reference: string): string[] {
+export function getOlderVersions(
+  versions: string[],
+  reference: string,
+): string[] {
   return versions.filter((v) => isOlderVersion(v, reference));
 }

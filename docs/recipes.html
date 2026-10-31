@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Build, test, and maintain prune-overrides with a small native toolchain.">
+  <title>Development — prune-overrides</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header>
+    <a class="brand" href="index.html">prune-overrides</a>
+    <nav aria-label="Main navigation">
+      <a href="index.html">Start</a>
+      <a href="architecture.html">How it works</a>
+      <a href="recipes.html" aria-current="page">Development</a>
+      <a href="patterns.html">Code patterns</a>
+    </nav>
+  </header>
+  <main id="main">
+    <p class="eyebrow">Development</p>
+    <h1>Small tools. Direct tests.</h1>
+    <p class="lead">TypeScript for checking and building. Node for testing. No lint, formatting, or hook setup.</p>
+    <section aria-labelledby="setup">
+      <h2 id="setup">Build and test</h2>
+      <pre><code>npm ci
+npm run typecheck
+npm test
+npm run build
+npm run test:coverage</code></pre>
+      <p>Development requires Node 26+. Run <code>nvm use</code> to select it. TypeScript tests run natively without a stripping flag.</p>
+      <p><code>tsconfig.json</code> checks source and tests. <code>tsconfig.build.json</code> emits production files to <code>dist/</code>, without tests.</p>
+    </section>
+    <section aria-labelledby="tests">
+      <h2 id="tests">Run one test</h2>
+      <pre><code>node --import ./scripts/loader.js \
+  --test src/util/semver.test.ts</code></pre>
+      <p>Tests live beside source: <code>sample.ts</code> and <code>sample.test.ts</code>. Use <code>node:test</code>, <code>node:assert/strict</code>, and scoped mocks.</p>
+      <p>The loader maps relative <code>.js</code> imports to TypeScript source. Tests run directly, without a test output directory.</p>
+    </section>
+    <section aria-labelledby="changes">
+      <h2 id="changes">Change the analyzer</h2>
+      <ol>
+        <li>Start in <code>src/analyzer/analyzeSingle.ts</code> for individual checks.</li>
+        <li>Add tests for root and nested dependency versions.</li>
+        <li>Test scanning and fixing on a real project.</li>
+        <li>Update <a href="architecture.html">how it works</a> when behavior changes.</li>
+      </ol>
+      <p class="note">Keep the CLI limited to scan, <code>--fix</code>, <code>--help</code>, and <code>--version</code>. Preserve baseline validation, combined-removal checks, and rollback.</p>
+    </section>
+    <section aria-labelledby="manual">
+      <h2 id="manual">Try the built CLI</h2>
+      <pre><code>cd /path/to/your-project
+node /path/to/prune-overrides/dist/bin/prune-overrides.js
+node /path/to/prune-overrides/dist/bin/prune-overrides.js --fix</code></pre>
+      <p>Use a disposable project when testing fixes.</p>
+    </section>
+    <section aria-labelledby="errors">
+      <h2 id="errors">Add an error</h2>
+      <p>Define it in <code>src/util/errors.ts</code>, export it from <code>src/index.ts</code>, and use it where the failure happens.</p>
+    </section>
+    <section aria-labelledby="pages">
+      <h2 id="pages">Publish these docs</h2>
+      <p>In GitHub’s repository settings, open <strong>Pages</strong>. Choose <strong>Deploy from a branch</strong>, select <strong>main</strong> and <strong>/docs</strong>, then save.</p>
+      <p>No build step is needed. Preview locally by opening <code>docs/index.html</code> in a browser.</p>
+    </section>
+  </main>
+  <footer><a href="https://github.com/PKief/prune-overrides">Source on GitHub</a> · <a href="patterns.html">Code patterns</a></footer>
+</body>
+</html>
