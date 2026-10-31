@@ -4,13 +4,13 @@ import { join } from "node:path";
 import type { OverrideAnalysisResult } from "./types.js";
 
 interface CacheFile {
-  version: 2;
+  version: 3;
   entries: Record<string, OverrideAnalysisResult>;
 }
 
 export class AnalysisCache {
   private readonly path: string;
-  private data: CacheFile = { version: 2, entries: {} };
+  private data: CacheFile = { version: 3, entries: {} };
 
   constructor(cwd: string) {
     this.path = join(
@@ -50,7 +50,7 @@ function isCacheFile(value: unknown): value is CacheFile {
     typeof value === "object" &&
     value !== null &&
     "version" in value &&
-    value.version === 2 &&
+    value.version === 3 &&
     "entries" in value &&
     typeof value.entries === "object" &&
     value.entries !== null

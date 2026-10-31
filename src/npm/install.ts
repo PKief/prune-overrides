@@ -1,3 +1,5 @@
+import { rm } from "node:fs/promises";
+import { join } from "node:path";
 import { execFile, execFileSafe } from "../util/exec.js";
 import { NpmError } from "../util/errors.js";
 import { DEFAULT_NPM_TIMEOUT } from "../config/constants.js";
@@ -9,6 +11,8 @@ export interface InstallOptions {
   ignoreScripts?: boolean;
   timeout?: number;
   signal?: AbortSignal;
+  /** Resolve without the existing lockfile. Only use in disposable workspaces. */
+  freshResolution?: boolean;
 }
 
 export async function npmInstall(options: InstallOptions): Promise<void> {
@@ -18,7 +22,11 @@ export async function npmInstall(options: InstallOptions): Promise<void> {
     ignoreScripts = true,
     timeout = DEFAULT_NPM_TIMEOUT,
     signal,
+    freshResolution = false,
   } = options;
+  // npm can retain overridden versions even after their override is removed.
+  // A clean resolution must prove that the remaining manifest allows them.
+  if (freshResolution) await rm(join(cwd, "package-lock.json"), { force: true });
   const args: string[] = [
     "install",
     "--no-audit",

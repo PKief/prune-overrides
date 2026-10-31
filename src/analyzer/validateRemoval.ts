@@ -31,7 +31,7 @@ export async function validateRemovalSet(
   try {
     await writePackageJson(workspace.path, modified);
     try {
-      await npmInstall({ cwd: workspace.path, signal });
+      await npmInstall({ cwd: workspace.path, signal, freshResolution: true });
     } catch {
       return { safe: false, reason: "Combined npm install failed" };
     }

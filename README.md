@@ -75,7 +75,7 @@ For each override entry:
 1. **Collect baseline versions** - Get ALL resolved versions of the package across the entire dependency tree from `package-lock.json`
 2. **Create temporary workspace** - Copy `package.json` and `package-lock.json` to an isolated temp directory
 3. **Remove the override** - Modify the temp `package.json` to remove only this specific override
-4. **Regenerate lockfile** - Run `npm install --package-lock-only --ignore-scripts`
+4. **Resolve from scratch** - Discard the temporary lockfile and run `npm install --package-lock-only --ignore-scripts`. This prevents npm from retaining previously overridden versions that the remaining dependency ranges do not allow.
 5. **Collect new versions** - Get ALL resolved versions from the new lockfile
 6. **Compare version sets** - Determine if removing the override would introduce older versions
 
