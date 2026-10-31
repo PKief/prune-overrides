@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.3.1
+
+[compare changes](https://github.com/PKief/prune-overrides/compare/v0.3.0...v0.3.1)
+
+### Fixes
+
+- Validate override removals with fresh resolutions ([015f5331](https://github.com/PKief/prune-overrides/commit/015f5331766cd16c527f4396273b6721d6abdc99))
+
+### Refactors
+
+- Split docs styles into nested CSS modules ([b18a1bb3](https://github.com/PKief/prune-overrides/commit/b18a1bb385934863e90b05029a01c22e28f3e61d))
+
+### Contributors
+
+- Philipp Kief ([@PKief](https://github.com/PKief))
+
 ## v0.3.0
 
 [compare changes](https://github.com/PKief/prune-overrides/compare/v0.2.2...v0.3.0)
