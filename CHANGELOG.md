@@ -4,11 +4,11 @@
 
 [compare changes](https://github.com/PKief/prune-overrides/compare/v0.2.1...v0.2.2)
 
-### 🚀 Enhancements
+### Enhancements
 
-- Remove unused web ui ([5ad1373](https://github.com/PKief/prune-overrides/commit/5ad1373))
+- Remove unused web ui ([5e75b240](https://github.com/PKief/prune-overrides/commit/5e75b2402532193bdf063d440197277cb53d6bd6))
 
-### ❤️ Contributors
+### Contributors
 
 - Philipp Kief ([@PKief](https://github.com/PKief))
 
@@ -16,15 +16,15 @@
 
 [compare changes](https://github.com/PKief/prune-overrides/compare/v0.1.9...v0.2.1)
 
-### 🚀 Enhancements
+### Enhancements
 
-- Support nested overrides and concurrent analysis ([5bf3de1](https://github.com/PKief/prune-overrides/commit/5bf3de1))
+- Support nested overrides and concurrent analysis ([9d6df50c](https://github.com/PKief/prune-overrides/commit/9d6df50c830adffb86d08fe0a5816973e44181cc))
 
-### 🔥 Performance
+### Performance
 
-- Eliminate redundant I/O in parallel override analysis ([404edd5](https://github.com/PKief/prune-overrides/commit/404edd5))
+- Eliminate redundant I/O in parallel override analysis ([e99d4fe4](https://github.com/PKief/prune-overrides/commit/e99d4fe4165c269d8315c39b598bd7e99034b4cf))
 
-### ❤️ Contributors
+### Contributors
 
 - Philipp Kief ([@PKief](https://github.com/PKief))
 
@@ -32,11 +32,11 @@
 
 [compare changes](https://github.com/PKief/prune-overrides/compare/v0.1.8...v0.1.9)
 
-### 🚀 Enhancements
+### Enhancements
 
-- Refactor share module and CLI utilities ([2d235a7](https://github.com/PKief/prune-overrides/commit/2d235a7))
+- Refactor share module and CLI utilities ([162a9101](https://github.com/PKief/prune-overrides/commit/162a91011b037e3a5873da1fcdd4822992de897c))
 
-### ❤️ Contributors
+### Contributors
 
 - Philipp Kief ([@PKief](https://github.com/PKief))
 
@@ -44,11 +44,11 @@
 
 [compare changes](https://github.com/PKief/prune-overrides/compare/v0.1.7...v0.1.8)
 
-### 🚀 Enhancements
+### Enhancements
 
-- Add README and LICENSE to CLI package and update NPM publish step ([0e0a514](https://github.com/PKief/prune-overrides/commit/0e0a514))
+- Add README and LICENSE to CLI package and update NPM publish step ([308415b9](https://github.com/PKief/prune-overrides/commit/308415b9e3a218409951f5c8867b10f9489bce97))
 
-### ❤️ Contributors
+### Contributors
 
 - Philipp Kief ([@PKief](https://github.com/PKief))
 
@@ -56,27 +56,28 @@
 
 [compare changes](https://github.com/PKief/prune-overrides/compare/v0.1.6...v0.1.7)
 
-### 🚀 Enhancements
+### Enhancements
 
-- Update release workflow to amend commits and sync workspace versions ([3ec9f95](https://github.com/PKief/prune-overrides/commit/3ec9f95))
+- Update release workflow to amend commits and sync workspace versions ([43d6fb7c](https://github.com/PKief/prune-overrides/commit/43d6fb7c6e48ae6993f74a84e999317d1831918f))
 
-### 🏡 Chore
+### Chores
 
-- Sync workspace versions to 0.1.6 ([253709e](https://github.com/PKief/prune-overrides/commit/253709e))
+- Sync workspace versions to 0.1.6 ([99650053](https://github.com/PKief/prune-overrides/commit/996500533404cbb0a9de7231b394b20730f37591))
 
-### ❤️ Contributors
+### Contributors
 
 - Philipp Kief ([@PKief](https://github.com/PKief))
+- github-actions\[bot\] ([@github-actions\[bot\]](https://github.com/apps/github-actions))
 
 ## v0.1.6
 
 [compare changes](https://github.com/PKief/prune-overrides/compare/v0.1.5...v0.1.6)
 
-### 🚀 Enhancements
+### Enhancements
 
-- Add step to sync workspace package versions during release ([1852c83](https://github.com/PKief/prune-overrides/commit/1852c83))
+- Add step to sync workspace package versions during release ([2390f26b](https://github.com/PKief/prune-overrides/commit/2390f26b00430958e5d3f5f410acd382e7ceac7c))
 
-### ❤️ Contributors
+### Contributors
 
 - Philipp Kief ([@PKief](https://github.com/PKief))
 
@@ -84,11 +85,11 @@
 
 [compare changes](https://github.com/PKief/prune-overrides/compare/v0.1.4...v0.1.5)
 
-### 🩹 Fixes
+### Fixes
 
-- Specify workspace for npm publish in release workflow ([a538db5](https://github.com/PKief/prune-overrides/commit/a538db5))
+- Specify workspace for npm publish in release workflow ([5b0f2dd4](https://github.com/PKief/prune-overrides/commit/5b0f2dd4e2acf2e1a9bf7588af88d79287f0f1f8))
 
-### ❤️ Contributors
+### Contributors
 
 - Philipp Kief ([@PKief](https://github.com/PKief))
 
@@ -96,24 +97,24 @@
 
 [compare changes](https://github.com/PKief/prune-overrides/compare/v0.1.3...v0.1.4)
 
-### 🚀 Enhancements
+### Enhancements
 
-- Add ui to share results ([f133c3b](https://github.com/PKief/prune-overrides/commit/f133c3b))
+- Add ui to share results ([116b5fb5](https://github.com/PKief/prune-overrides/commit/116b5fb51001bc9217f2d13b7524f63fd09ff558))
 
-### 🩹 Fixes
+### Fixes
 
-- Refine reason handling in fromPayloadV2 function ([6a0af66](https://github.com/PKief/prune-overrides/commit/6a0af66))
-- Move build step to correct position in workflow ([2eb7e34](https://github.com/PKief/prune-overrides/commit/2eb7e34))
-- Correct indentation in deploy job configuration ([ede4546](https://github.com/PKief/prune-overrides/commit/ede4546))
-- Remove unnecessary environment configuration from deploy job ([11c6d88](https://github.com/PKief/prune-overrides/commit/11c6d88))
-- Update build script to specify workspaces for individual packages ([21c8844](https://github.com/PKief/prune-overrides/commit/21c8844))
-- Remove redundant tsc command from typecheck script ([0754013](https://github.com/PKief/prune-overrides/commit/0754013))
+- Refine reason handling in fromPayloadV2 function ([01e8590b](https://github.com/PKief/prune-overrides/commit/01e8590b73c4b745e9037b5ae77e752352c35dac))
+- Move build step to correct position in workflow ([77618e2b](https://github.com/PKief/prune-overrides/commit/77618e2b59702b9d86aca1d67b7ab4da6126f412))
+- Correct indentation in deploy job configuration ([acb48001](https://github.com/PKief/prune-overrides/commit/acb480015f640d8680e4896228970fa51244b824))
+- Remove unnecessary environment configuration from deploy job ([bbc0b04d](https://github.com/PKief/prune-overrides/commit/bbc0b04d05ddd93cf06cc9b952fcc8fc36836f5a))
+- Update build script to specify workspaces for individual packages ([d54986eb](https://github.com/PKief/prune-overrides/commit/d54986ebc436e3e5da72a533850001d78274920e))
+- Remove redundant tsc command from typecheck script ([21c817c2](https://github.com/PKief/prune-overrides/commit/21c817c2661f76f8967df254b6e0220420347847))
 
-### 📖 Documentation
+### Documentation
 
-- Update architecture documentation with package details and shareable results encoding ([502d3a0](https://github.com/PKief/prune-overrides/commit/502d3a0))
+- Update architecture documentation with package details and shareable results encoding ([f0c86645](https://github.com/PKief/prune-overrides/commit/f0c86645c6823806b4f6289dea4199dbb75f3c1f))
 
-### ❤️ Contributors
+### Contributors
 
 - Philipp Kief ([@PKief](https://github.com/PKief))
 
@@ -121,11 +122,11 @@
 
 [compare changes](https://github.com/PKief/prune-overrides/compare/v0.1.2...v0.1.3)
 
-### 🏡 Chore
+### Chores
 
-- Fix release pipeline ([f424e77](https://github.com/PKief/prune-overrides/commit/f424e77))
+- Fix release pipeline ([75d63aee](https://github.com/PKief/prune-overrides/commit/75d63aee71f4de782e42dc86238f54b66c492c36))
 
-### ❤️ Contributors
+### Contributors
 
 - Philipp Kief ([@PKief](https://github.com/PKief))
 
@@ -133,78 +134,80 @@
 
 [compare changes](https://github.com/PKief/prune-overrides/compare/v0.1.1...v0.1.2)
 
-### 🚀 Enhancements
+### Enhancements
 
-- Add nanospinner for improved CLI feedback and implement spinner utility ([75016ea](https://github.com/PKief/prune-overrides/commit/75016ea))
+- Add nanospinner for improved CLI feedback and implement spinner utility ([59073797](https://github.com/PKief/prune-overrides/commit/590737970376d80024972f54a3e8b9bdb9b98276))
 
-### 🩹 Fixes
+### Fixes
 
 - **deps:** Bump commander from 12.1.0 to 14.0.2 ([#5](https://github.com/PKief/prune-overrides/pull/5))
 
-### 📖 Documentation
+### Documentation
 
-- Update AGENTS.md and add patterns.md and recipes.md for improved documentation ([d8b63d9](https://github.com/PKief/prune-overrides/commit/d8b63d9))
+- Update AGENTS.md and add patterns.md and recipes.md for improved documentation ([e2e2414a](https://github.com/PKief/prune-overrides/commit/e2e2414a31ed16f169ef0475bf58bf9a2aa654be))
 
-### 🏡 Chore
+### Chores
 
-- Update NPM registry authentication command ([524f2b4](https://github.com/PKief/prune-overrides/commit/524f2b4))
-- Add dependabot configuration for npm updates ([fce2180](https://github.com/PKief/prune-overrides/commit/fce2180))
+- Update NPM registry authentication command ([9f3d71eb](https://github.com/PKief/prune-overrides/commit/9f3d71eb68c16d5ad77608333b1d80a6cc9ca8e4))
+- Add dependabot configuration for npm updates ([42152fd5](https://github.com/PKief/prune-overrides/commit/42152fd5e0bf016d7b2f6c23ce805b81561e15f4))
+- **deps:** Bump actions/checkout from 4.2.2 to 6.0.1 ([#2](https://github.com/PKief/prune-overrides/pull/2))
 - **deps-dev:** Bump jest and @types/jest ([#3](https://github.com/PKief/prune-overrides/pull/3))
 - **deps-dev:** Bump prettier from 3.8.0 to 3.8.1 ([#4](https://github.com/PKief/prune-overrides/pull/4))
 - **deps-dev:** Bump lint-staged from 15.5.2 to 16.2.7 ([#7](https://github.com/PKief/prune-overrides/pull/7))
 - **deps-dev:** Bump @types/node from 22.19.7 to 25.0.10 ([#8](https://github.com/PKief/prune-overrides/pull/8))
 
-### ❤️ Contributors
+### Contributors
 
 - Philipp Kief ([@PKief](https://github.com/PKief))
+- dependabot\[bot\] ([@dependabot\[bot\]](https://github.com/apps/dependabot))
 
 ## v0.1.1
 
-### 🚀 Enhancements
+### Enhancements
 
-- Add utility modules and constants ([5064167](https://github.com/PKief/prune-overrides/commit/5064167))
-- Add filesystem utilities for package.json and lockfile ([8a4a191](https://github.com/PKief/prune-overrides/commit/8a4a191))
-- Add npm command wrappers ([8f11133](https://github.com/PKief/prune-overrides/commit/8f11133))
-- Add version comparison utilities ([cc04d7a](https://github.com/PKief/prune-overrides/commit/cc04d7a))
-- Add override analyzer with full tree version checking ([9720f3e](https://github.com/PKief/prune-overrides/commit/9720f3e))
-- Add console and JSON reporters ([a3049e2](https://github.com/PKief/prune-overrides/commit/a3049e2))
-- Add CLI with commander.js ([8c852ae](https://github.com/PKief/prune-overrides/commit/8c852ae))
+- Add utility modules and constants ([623fac7b](https://github.com/PKief/prune-overrides/commit/623fac7b9e0884188792a15e5cdcdfa4441cdf0d))
+- Add filesystem utilities for package.json and lockfile ([8f56a174](https://github.com/PKief/prune-overrides/commit/8f56a174f1697d77fe1570fa50bcb526071c61d9))
+- Add npm command wrappers ([a4d405d1](https://github.com/PKief/prune-overrides/commit/a4d405d1002bdfa51dc0e62365394571c54d5482))
+- Add version comparison utilities ([97e98000](https://github.com/PKief/prune-overrides/commit/97e980009cd7da8e8b766e4d47ccfd027a322409))
+- Add override analyzer with full tree version checking ([5637a779](https://github.com/PKief/prune-overrides/commit/5637a7793188eb3bce655a0128dc804f85dba561))
+- Add console and JSON reporters ([668b56dc](https://github.com/PKief/prune-overrides/commit/668b56dce649df4121e388fd1ccc7cb4ee94b8c7))
+- Add CLI with commander.js ([faf769d0](https://github.com/PKief/prune-overrides/commit/faf769d0a2a6557f4381303b32f25e0cbe3cb35f))
 
-### 🩹 Fixes
+### Fixes
 
-- Add author name to package.json ([a1acc95](https://github.com/PKief/prune-overrides/commit/a1acc95))
-- Correct package.json path resolution in CLI ([88bba65](https://github.com/PKief/prune-overrides/commit/88bba65))
-- Add peer field to dependencies in package-lock.json ([55cadb6](https://github.com/PKief/prune-overrides/commit/55cadb6))
+- Add author name to package.json ([f2ac61b5](https://github.com/PKief/prune-overrides/commit/f2ac61b595e60ba46295c7840bc09e8841f82ab7))
+- Correct package.json path resolution in CLI ([e5d324d5](https://github.com/PKief/prune-overrides/commit/e5d324d5035e03ab4a2f105c46e4dcdf17a43dbf))
+- Add peer field to dependencies in package-lock.json ([fcc4c35f](https://github.com/PKief/prune-overrides/commit/fcc4c35fb34a789ad48248bf4c9c69455b9b87af))
 
-### 💅 Refactors
+### Documentation
 
-- Use official semver package for version comparison ([4a9c2e7](https://github.com/PKief/prune-overrides/commit/4a9c2e7))
+- Add README with usage examples and documentation ([f18456b8](https://github.com/PKief/prune-overrides/commit/f18456b85aad678110c331e92b81b2386d912532))
+- Improve README and add MIT LICENSE ([7a3953b2](https://github.com/PKief/prune-overrides/commit/7a3953b24ad225a5f131ccec0b7787611898dde6))
+- Add architecture documentation and AI agent instructions ([9cd7f767](https://github.com/PKief/prune-overrides/commit/9cd7f767c3039cd798ef26c55f2c4c036bb15181))
+- Remove future improvements section from architecture documentation ([3a5bbf52](https://github.com/PKief/prune-overrides/commit/3a5bbf52445dc5bfcd4cb058c8f94e03a0ab7e18))
+- Remove incorrect .npmrc limitation ([7f3ea142](https://github.com/PKief/prune-overrides/commit/7f3ea14276a51a9304361855a7871e80b0f6a2cc))
 
-### 📖 Documentation
+### Refactors
 
-- Add README with usage examples and documentation ([a503630](https://github.com/PKief/prune-overrides/commit/a503630))
-- Improve README and add MIT LICENSE ([718c892](https://github.com/PKief/prune-overrides/commit/718c892))
-- Add architecture documentation and AI agent instructions ([89081f2](https://github.com/PKief/prune-overrides/commit/89081f2))
-- Remove future improvements section from architecture documentation ([87a06a1](https://github.com/PKief/prune-overrides/commit/87a06a1))
-- Remove incorrect .npmrc limitation ([b9a7bac](https://github.com/PKief/prune-overrides/commit/b9a7bac))
+- Use official semver package for version comparison ([556ee303](https://github.com/PKief/prune-overrides/commit/556ee30383eca1172eebec29b3aeffbe33d67798))
 
-### 🏡 Chore
+### Tests
 
-- Initialize project with package.json and TypeScript config ([5c7564f](https://github.com/PKief/prune-overrides/commit/5c7564f))
-- Add ESLint 9, Prettier, and Jest configuration ([fb22e12](https://github.com/PKief/prune-overrides/commit/fb22e12))
-- Add package-lock.json ([54acea8](https://github.com/PKief/prune-overrides/commit/54acea8))
-- Add husky and lint-staged for pre-commit hooks ([2bb792c](https://github.com/PKief/prune-overrides/commit/2bb792c))
-- Remove Node.js setup steps from workflows and update NPM publish command ([d85e84d](https://github.com/PKief/prune-overrides/commit/d85e84d))
-- Add meta information to package.json ([8a1ad82](https://github.com/PKief/prune-overrides/commit/8a1ad82))
+- Add unit tests for analyzer, compare, and semver utilities ([7de25e13](https://github.com/PKief/prune-overrides/commit/7de25e13ec5368e315a041432bccf020144e0772))
 
-### ✅ Tests
+### CI
 
-- Add unit tests for analyzer, compare, and semver utilities ([5b91121](https://github.com/PKief/prune-overrides/commit/5b91121))
+- Add GitHub Actions workflows and dependabot config ([75bad508](https://github.com/PKief/prune-overrides/commit/75bad508f435083f4f913c4a3e342a824ef6fa53))
 
-### 🤖 CI
+### Chores
 
-- Add GitHub Actions workflows and dependabot config ([43f3664](https://github.com/PKief/prune-overrides/commit/43f3664))
+- Initialize project with package.json and TypeScript config ([5cbe1b60](https://github.com/PKief/prune-overrides/commit/5cbe1b607c93453ec12745e8bcd39993b03dc391))
+- Add ESLint 9, Prettier, and Jest configuration ([147f5bfa](https://github.com/PKief/prune-overrides/commit/147f5bfa0be70252712521c19e29d9cd561fcc33))
+- Add package-lock.json ([6fd5f1db](https://github.com/PKief/prune-overrides/commit/6fd5f1db5500c49c4ce658d7aee0344b6634d4c7))
+- Add husky and lint-staged for pre-commit hooks ([f1c68bc8](https://github.com/PKief/prune-overrides/commit/f1c68bc884fec7d39ae48cbca788235800bc0cec))
+- Remove Node.js setup steps from workflows and update NPM publish command ([ef23a9c6](https://github.com/PKief/prune-overrides/commit/ef23a9c60776be99aadd0bdee0aa4605c6b62d7a))
+- Add meta information to package.json ([98bae858](https://github.com/PKief/prune-overrides/commit/98bae8584a0e127c862125f5c71be1413b36c0c3))
 
-### ❤️ Contributors
+### Contributors
 
 - Philipp Kief ([@PKief](https://github.com/PKief))
