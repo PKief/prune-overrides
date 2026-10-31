@@ -31,7 +31,7 @@
       <ol>
         <li>Read the project’s overrides and lockfile. Keep nested rules and version selectors intact.</li>
         <li>Reproduce the baseline with npm in a temporary workspace.</li>
-        <li>Remove one override in another workspace and regenerate its lockfile.</li>
+        <li>Remove one override in another workspace, discard its copied lockfile, and resolve from scratch so npm cannot retain incompatible overridden versions.</li>
         <li>Compare every resolved version of the target package, including nested copies.</li>
         <li>Check that redundant candidates are also safe to remove together.</li>
         <li>Show the verdicts and clean up the workspaces.</li>

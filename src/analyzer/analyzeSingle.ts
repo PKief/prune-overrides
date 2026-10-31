@@ -54,7 +54,11 @@ export async function analyzeSingleOverride(
       removeOverride(options.packageJson, rule.key, rule.path),
     );
     try {
-      await npmInstall({ cwd: workspace.path, signal: options.signal });
+      await npmInstall({
+        cwd: workspace.path,
+        signal: options.signal,
+        freshResolution: true,
+      });
     } catch (error) {
       logger.debug(`npm install failed without override: ${String(error)}`);
       const failure = classifyNpmFailure(error);
