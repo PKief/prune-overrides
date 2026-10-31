@@ -132,10 +132,6 @@ for (const result of report.results) {
 
 Use Node.js 26+ (`nvm use`) and npm. `npm ci` and npm scripts enforce this with `devEngines`. Tests run TypeScript directly; coverage still uses Node’s experimental coverage flag.
 
-## Documentation
-
-Open [docs/index.html](./docs/index.html) locally, or publish `/docs` with GitHub Pages. No build step needed.
-
 ## License
 
 MIT
