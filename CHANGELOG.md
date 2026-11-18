@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.4.0
+
+[compare changes](https://github.com/PKief/prune-overrides/compare/v0.3.1...v0.4.0)
+
+### Enhancements
+
+- Improve npm error handling and loading indicators ([69236c85](https://github.com/PKief/prune-overrides/commit/69236c85243d823cf33435efb4f4e90cba1ee057))
+
+### Chores
+
+- **deps:** Bump actions/setup-node from 6 to 7 ([#33](https://github.com/PKief/prune-overrides/pull/33))
+
+### Contributors
+
+- Philipp Kief ([@PKief](https://github.com/PKief))
+- dependabot\[bot\] ([@dependabot\[bot\]](https://github.com/apps/dependabot))
+
 ## v0.3.1
 
 [compare changes](https://github.com/PKief/prune-overrides/compare/v0.3.0...v0.3.1)
