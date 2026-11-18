@@ -26,6 +26,13 @@ export function classifyNpmFailure(error: unknown): {
       reason: "npm resolution failed due to registry authentication",
     };
   }
+  if (/\bETARGET\b/i.test(text)) {
+    const detail = text.match(/No matching version found for [^\r\n]+/i)?.[0];
+    return {
+      kind: "infrastructure",
+      reason: `npm resolution failed: ${detail ?? "ETARGET (requested package version is unavailable)"}`,
+    };
+  }
   if (/\bETIMEDOUT\b|timeout|aborted?/i.test(text)) {
     return { kind: "infrastructure", reason: "npm resolution timed out" };
   }

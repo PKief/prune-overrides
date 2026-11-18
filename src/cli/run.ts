@@ -13,6 +13,7 @@ import { writePackageJson, removeOverride } from "../fs/writePackageJson.js";
 import { npmInstall } from "../npm/install.js";
 import { logger } from "../util/logger.js";
 import { createSpinner } from "../util/spinner.js";
+import { withSpinner } from "../util/withSpinner.js";
 import { ExitCode } from "../config/constants.js";
 import { PruneOverridesError } from "../util/errors.js";
 
@@ -68,10 +69,9 @@ async function applyFixes(
 
   let packageJson = await readPackageJson(cwd);
   const checkedInLockfile = await readLockfile(cwd);
-  const reproduced = await validateBaseline(
-    cwd,
-    packageJson,
-    checkedInLockfile,
+  const reproduced = await withSpinner(
+    "Revalidating baseline lockfile with npm...",
+    () => validateBaseline(cwd, packageJson, checkedInLockfile),
   );
   if (!reproduced.valid || !reproduced.lockfile) {
     throw new PruneOverridesError(
@@ -85,12 +85,16 @@ async function applyFixes(
     value: result.overrideValue,
     path: result.overridePath ?? [],
   }));
-  const validation = await validateRemovalSet(
-    cwd,
-    packageJson,
-    reproduced.lockfile,
-    rules,
-    "no-downgrade",
+  const baselineLockfile = reproduced.lockfile;
+  const validation = await withSpinner(
+    "Validating proposed fixes with npm...",
+    () => validateRemovalSet(
+      cwd,
+      packageJson,
+      baselineLockfile,
+      rules,
+      "no-downgrade",
+    ),
   );
   if (!validation.safe) {
     throw new PruneOverridesError(

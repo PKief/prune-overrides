@@ -189,6 +189,66 @@ describe("spinner utility", () => {
     });
   });
 
+  describe("interactive progress", () => {
+    let originalTTY: PropertyDescriptor | undefined;
+    let originalCI: string | undefined;
+    beforeEach(() => {
+      originalTTY = Object.getOwnPropertyDescriptor(process.stdout, "isTTY");
+      originalCI = process.env.CI;
+      Object.defineProperty(process.stdout, "isTTY", { configurable: true, value: true });
+      delete process.env.CI;
+      mock.timers.enable({ apis: ["Date", "setInterval"] });
+    });
+    afterEach(() => {
+      mock.timers.reset();
+      if (originalTTY) Object.defineProperty(process.stdout, "isTTY", originalTTY);
+      else Reflect.deleteProperty(process.stdout, "isTTY");
+      if (originalCI === undefined) delete process.env.CI;
+      else process.env.CI = originalCI;
+    });
+
+    it("animates immediately, shows elapsed time, and clears on stop", (t) => {
+      const output: string[] = [];
+      t.mock.method(process.stdout, "write", (text: string) => {
+        output.push(text);
+        return true;
+      });
+      const spinner = createSpinner("Resolving dependencies...");
+      t.after(() => spinner.stop());
+      spinner.start();
+      assert.match(output[0]!, /Resolving dependencies\.\.\. \(0s\)/);
+      mock.timers.tick(2080);
+      assert.ok(output.some(text => text.includes("(2s)")));
+      spinner.update("Validating removals...");
+      mock.timers.tick(80);
+      assert.match(output.at(-1)!, /Validating removals/);
+      spinner.stop();
+      assert.strictEqual(output.at(-1), "\r\x1b[K");
+      const count = output.length;
+      mock.timers.tick(1000);
+      assert.strictEqual(output.length, count);
+    });
+
+    it("does not leak timers when restarted", (t) => {
+      const output: string[] = [];
+      t.mock.method(process.stdout, "write", (text: string) => {
+        output.push(text);
+        return true;
+      });
+      const spinner = createSpinner("Working");
+      t.after(() => spinner.stop());
+      spinner.start();
+      spinner.start("Restarted");
+      const count = output.length;
+      mock.timers.tick(80);
+      assert.strictEqual(output.length, count + 1);
+      spinner.stop();
+      const stoppedCount = output.length;
+      mock.timers.tick(1000);
+      assert.strictEqual(output.length, stoppedCount);
+    });
+  });
+
   describe("SpinnerInstance interface compliance", () => {
     it("should return object matching SpinnerInstance interface", () => {
       const spinner: SpinnerInstance = createSpinner("Test");

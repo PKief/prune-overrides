@@ -97,6 +97,12 @@ describe("CLI", () => {
       assert.strictEqual(result.code, 0, result.stderr + result.stdout);
       assert.match(result.stdout, /Redundant:\s+0/);
       assert.match(result.stdout, /Required:\s+2/);
+      assert.match(result.stdout, /Validating baseline lockfile with npm/);
+      assert.match(result.stdout, /Checking all overrides together/);
+      assert.ok(
+        result.stdout.indexOf("Checking all overrides together") <
+          result.stdout.indexOf("Analyzing overrides (0/2)"),
+      );
       assert.match(result.stdout, /10\.0\.0/);
       assert.strictEqual(await readFile(join(cwd, "package.json"), "utf8"), originalPackage);
       assert.strictEqual(await readFile(join(cwd, "package-lock.json"), "utf8"), originalLock);

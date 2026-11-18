@@ -18,8 +18,6 @@ function checkIsInteractive(): boolean {
   return true;
 }
 
-const isInteractive = checkIsInteractive();
-
 function createFallbackSpinner(initialText: string): SpinnerInstance {
   return {
     start(text?: string): void {
@@ -49,10 +47,12 @@ function createInteractiveSpinner(initialText: string): SpinnerInstance {
   let frameIndex = 0;
   let currentText = initialText;
   let intervalId: ReturnType<typeof setInterval> | null = null;
+  let startedAt = Date.now();
 
   function render(): void {
     const frame = SPINNER_FRAMES[frameIndex % SPINNER_FRAMES.length] ?? "⠋";
-    process.stdout.write(`\r\x1b[K${frame} ${currentText}`);
+    const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+    process.stdout.write(`\r\x1b[K${frame} ${currentText} (${elapsed}s)`);
     frameIndex++;
   }
 
@@ -68,6 +68,8 @@ function createInteractiveSpinner(initialText: string): SpinnerInstance {
       if (text) {
         currentText = text;
       }
+      stopInterval();
+      startedAt = Date.now();
       frameIndex = 0;
       render();
       intervalId = setInterval(render, SPINNER_INTERVAL_MS);
@@ -93,7 +95,7 @@ function createInteractiveSpinner(initialText: string): SpinnerInstance {
 }
 
 export function createSpinner(text: string): SpinnerInstance {
-  if (!isInteractive) {
+  if (!checkIsInteractive()) {
     return createFallbackSpinner(text);
   }
 

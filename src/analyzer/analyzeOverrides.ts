@@ -16,6 +16,7 @@ import type { PackageJson } from "../fs/readPackageJson.js";
 import { readLockfile } from "../fs/readLockfile.js";
 import { logger } from "../util/logger.js";
 import { createSpinner } from "../util/spinner.js";
+import { withSpinner } from "../util/withSpinner.js";
 import { processInPool } from "../util/processInPool.js";
 import { DEFAULT_CONCURRENCY } from "../config/constants.js";
 import { getNpmVersion } from "../npm/install.js";
@@ -113,11 +114,14 @@ export async function analyzeOverrides(
     return report(results, startTime, platform, npmVersion);
   }
 
-  const baselineValidation = await validateBaseline(
-    options.cwd,
-    packageJson,
-    checkedInLockfile,
-    options.signal,
+  const baselineValidation = await withSpinner(
+    "Validating baseline lockfile with npm...",
+    () => validateBaseline(
+      options.cwd,
+      packageJson,
+      checkedInLockfile,
+      options.signal,
+    ),
   );
   if (!baselineValidation.valid || !baselineValidation.lockfile) {
     return report(
@@ -134,13 +138,16 @@ export async function analyzeOverrides(
   );
 
   // Fast path: one npm resolution proves that the whole selected set is safe.
-  const batch = await validateRemovalSet(
-    options.cwd,
-    packageJson,
-    baselineLockfile,
-    rules,
-    policy,
-    options.signal,
+  const batch = await withSpinner(
+    "Checking all overrides together (resolving dependencies with npm)...",
+    () => validateRemovalSet(
+      options.cwd,
+      packageJson,
+      baselineLockfile,
+      rules,
+      policy,
+      options.signal,
+    ),
   );
   if (batch.safe) {
     const results = rules.map((rule) => ({
@@ -185,21 +192,25 @@ export async function analyzeOverrides(
       `Analyzing overrides (${String(++completed)}/${String(rules.length)})`,
     );
     return result;
-  });
-  spinner.stop();
+  }).finally(() => spinner.stop());
   if (options.cache !== false) await cache.save();
 
   const redundantRules = rules.filter(
     (_, index) => results[index]?.verdict === "redundant",
   );
-  const selected = await selectSafeRemovalSet(
-    options.cwd,
-    packageJson,
-    baselineLockfile,
-    redundantRules,
-    policy,
-    options.signal,
-  );
+  const selected = redundantRules.length === 0
+    ? { rejected: [] }
+    : await withSpinner(
+        "Validating safe override removals with npm...",
+        () => selectSafeRemovalSet(
+          options.cwd,
+          packageJson,
+          baselineLockfile,
+          redundantRules,
+          policy,
+          options.signal,
+        ),
+      );
   const rejected = new Set(selected.rejected.map(getRuleId));
   for (const result of results) {
     if (
